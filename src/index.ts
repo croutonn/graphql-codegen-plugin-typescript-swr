@@ -1,42 +1,58 @@
-import { extname } from 'path';
+import { extname } from 'path'
 
 import {
   Types,
   PluginValidateFn,
   PluginFunction,
-} from '@graphql-codegen/plugin-helpers';
-import {
-  RawClientSideBasePluginConfig,
-  LoadedFragment,
-} from '@graphql-codegen/visitor-plugin-common';
+} from '@graphql-codegen/plugin-helpers'
+import { LoadedFragment } from '@graphql-codegen/visitor-plugin-common'
 import {
   visit,
   GraphQLSchema,
   concatAST,
   Kind,
   FragmentDefinitionNode,
-} from 'graphql';
+} from 'graphql'
 
-import { RawSWRPluginConfig } from './config';
-import { SWRVisitor } from './visitor';
+import { RawSWRPluginConfig } from './config'
+import { SWRVisitor } from './visitor'
 
 export const plugin: PluginFunction<RawSWRPluginConfig> = (
   schema: GraphQLSchema,
   documents: Types.DocumentFile[],
-  config: RawGraphQLRequestPluginConfig
+  config: RawSWRPluginConfig
 ) => {
-  const allAst = concatAST(documents.map((v) => v.document));
-};
+  const allAst = concatAST(documents.map((v) => v.document))
+
+  const allFragments: LoadedFragment[] = [
+    ...(allAst.definitions.filter(
+      (d) => d.kind === Kind.FRAGMENT_DEFINITION
+    ) as FragmentDefinitionNode[]).map((fragmentDef) => ({
+      node: fragmentDef,
+      name: fragmentDef.name.value,
+      onType: fragmentDef.typeCondition.name.value,
+      isExternal: false,
+    })),
+    ...(config.externalFragments || []),
+  ]
+
+  const visitor = new SWRVisitor(schema, allFragments, config)
+  visit(allAst, { leave: visitor })
+  return {
+    prepend: visitor.getImports(),
+    content: visitor.sdkContent,
+  }
+}
 
 export const validate: PluginValidateFn<any> = async (
-  schema: GraphQLSchema,
-  documents: Types.DocumentFile[],
-  config: RawClientSideBasePluginConfig,
+  _schema: GraphQLSchema,
+  _documents: Types.DocumentFile[],
+  _config: RawSWRPluginConfig,
   outputFile: string
 ) => {
   if (extname(outputFile) !== '.ts') {
-    throw new Error(`Plugin "typescript-swr" requires extension to be ".ts"!`);
+    throw new Error(`Plugin "typescript-swr" requires extension to be ".ts"!`)
   }
-};
+}
 
-export { SWRVisitor };
+export { SWRVisitor }

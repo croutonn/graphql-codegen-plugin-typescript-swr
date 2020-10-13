@@ -29,7 +29,16 @@ module.exports = {
             },
           },
         ],
+        'no-underscore-dangle': [
+          'error',
+          {
+            allowAfterThis: true,
+            allowAfterSuper: true,
+            allowAfterThisConstructor: true,
+          },
+        ],
         'no-restricted-imports': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
       },
       settings: {
@@ -38,12 +47,18 @@ module.exports = {
         },
         'import/resolver': {
           typescript: {
-            project: 'packages/*/tsconfig.json',
+            project: './tsconfig.json',
           },
           node: {
             extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
           },
         },
+      },
+    },
+    {
+      files: ['./src/lib/**/*.ts'],
+      rules: {
+        'import/prefer-default-export': 'off',
       },
     },
   ],
