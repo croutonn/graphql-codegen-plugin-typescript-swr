@@ -61,5 +61,12 @@ module.exports = {
         'import/prefer-default-export': 'off',
       },
     },
+    {
+      files: ['./tests/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+        'global-require': 'off',
+      },
+    },
   ],
-};
+}
