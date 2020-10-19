@@ -157,5 +157,85 @@ async function test() {
 }
 export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
     })
+
+    it('Should generate the output from which mutation operation has been removed', async () => {
+      const config: PluginsConfig = {}
+      const document = parse(/* GraphQL */ `
+        query feed {
+          feed {
+            id
+            commentCount
+            repository {
+              owner {
+                avatar_url
+              }
+            }
+          }
+        }
+        query feed2($v: String!) {
+          feed {
+            id
+          }
+        }
+        query feed3($v: String) {
+          feed {
+            id
+          }
+        }
+        query feed4($v: String! = "TEST") {
+          feed {
+            id
+          }
+        }
+        mutation submitComment(
+          $repoFullName: String!
+          $commentContent: String!
+        ) {
+          submitComment(
+            repoFullName: $repoFullName
+            commentContent: $commentContent
+          ) {
+            ...CommentsPageComment
+          }
+        }
+        fragment CommentsPageComment on Comment {
+          id
+          postedBy {
+            login
+            html_url
+          }
+          createdAt
+          content
+        }
+      `)
+      const docs = [{ location: '', document }]
+
+      const content = (await plugin(schema, docs, config, {
+        outputFile: 'graphql.ts',
+      })) as Types.ComplexPluginOutput
+
+      const usage = basicUsage
+      const output = await validate(content, config, docs, schema, usage)
+      expect(output)
+        .toContain(`export type Sdk = ReturnType<typeof getSdk>;export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  const sdk = getSdk(client, withWrapper);
+  return {
+    ...sdk,
+    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
+      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
+    },
+    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
+      return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
+    },
+    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
+      return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
+    },
+    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
+      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
+    }
+  };
+}
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+    })
   })
 })

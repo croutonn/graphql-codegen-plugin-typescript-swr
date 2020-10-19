@@ -67,6 +67,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
 
   public get sdkContent(): string {
     const allPossibleActions = this._operationsToInclude
+      .filter((o) => o.operationType === 'Query')
       .map((o) => {
         const optionalVariables =
           !o.node.variableDefinitions ||
