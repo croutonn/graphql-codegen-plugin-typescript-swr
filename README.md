@@ -16,6 +16,10 @@ generates:
       - plugin-typescript-swr
 config:
   rawRequest: false
+  # exclude queries that are matched by micromatch (case-sensitive)
+  exclude:
+    - foo*
+    - bar
 ```
 
 ```typescript
@@ -24,7 +28,9 @@ import { GraphQLClient } from 'graphql-request'
 import { getSdkWithHooks } from './graphql'
 
 const sdk = getSdkWithHooks(
-  new GraphQLClient(`${process.env.API_URL}/graphql`, { cache: typeof window === 'object' ? 'default' : 'no-cache' })
+  new GraphQLClient(`${process.env.API_URL}/graphql`, {
+    cache: typeof window === 'object' ? 'default' : 'no-cache',
+  })
 )
 
 export default sdk
