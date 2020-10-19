@@ -237,5 +237,33 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
 }
 export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
     })
+
+    it('Should work `exclude` option correctly', async () => {
+      const config: PluginsConfig = {
+        exclude: ['feed[2-3]', 'hoge', 'foo'],
+      }
+      const docs = [{ location: '', document: basicDoc }]
+
+      const content = (await plugin(schema, docs, config, {
+        outputFile: 'graphql.ts',
+      })) as Types.ComplexPluginOutput
+
+      const usage = basicUsage
+      const output = await validate(content, config, docs, schema, usage)
+      expect(output)
+        .toContain(`export type Sdk = ReturnType<typeof getSdk>;export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  const sdk = getSdk(client, withWrapper);
+  return {
+    ...sdk,
+    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
+      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
+    },
+    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
+      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
+    }
+  };
+}
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+    })
   })
 })

@@ -6,12 +6,14 @@ import {
 } from '@graphql-codegen/visitor-plugin-common'
 import autoBind from 'auto-bind'
 import { GraphQLSchema, Kind, OperationDefinitionNode } from 'graphql'
+import glob from 'micromatch'
 import { pascalCase } from 'pascal-case'
 
 import { RawSWRPluginConfig } from './config'
 
 export interface SWRPluginConfig extends ClientSideBasePluginConfig {
   rawRequest: boolean
+  exclude: string | string[]
 }
 
 export class SWRVisitor extends ClientSideBaseVisitor<
@@ -31,7 +33,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     fragments: LoadedFragment[],
     rawConfig: RawSWRPluginConfig
   ) {
-    super(schema, fragments, rawConfig, {})
+    super(schema, fragments, rawConfig, {
+      exclude: rawConfig.exclude || null,
+    })
 
     autoBind(this)
 
@@ -67,7 +71,17 @@ export class SWRVisitor extends ClientSideBaseVisitor<
 
   public get sdkContent(): string {
     const allPossibleActions = this._operationsToInclude
-      .filter((o) => o.operationType === 'Query')
+      .filter((o) => {
+        if (o.operationType !== 'Query') {
+          return false
+        }
+        const { exclude } = this.config
+        if (!exclude || (Array.isArray(exclude) && !exclude.length)) {
+          return true
+        }
+        const name = o.node.name.value
+        return !glob.isMatch(name, exclude)
+      })
       .map((o) => {
         const optionalVariables =
           !o.node.variableDefinitions ||
