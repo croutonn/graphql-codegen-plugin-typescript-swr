@@ -24,9 +24,7 @@ import { GraphQLClient } from 'graphql-request'
 import { getSdkWithHooks } from './graphql'
 
 const sdk = getSdkWithHooks(
-  // Disable the cache because it is managed by `swr`.
-  // In the case of SSG, the server side always fetches the latest data, so it is unnecessary.
-  new GraphQLClient(`${process.env.API_URL}/graphql`, { cache: 'no-cache' })
+  new GraphQLClient(`${process.env.API_URL}/graphql`, { cache: typeof window === 'object' ? 'default' : 'no-cache' })
 )
 
 export default sdk
