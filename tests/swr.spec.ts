@@ -136,8 +136,8 @@ async function test() {
 
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
-      expect(output)
-        .toContain(`export type Sdk = ReturnType<typeof getSdk>;export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+      expect(output).toContain(
+        `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
   return {
     ...sdk,
@@ -155,7 +155,8 @@ async function test() {
     }
   };
 }
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
+      )
     })
 
     it('Should generate the output from which mutation operation has been removed', async () => {
@@ -216,8 +217,8 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
 
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
-      expect(output)
-        .toContain(`export type Sdk = ReturnType<typeof getSdk>;export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+      expect(output).toContain(
+        `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
   return {
     ...sdk,
@@ -235,7 +236,8 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
     }
   };
 }
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
+      )
     })
 
     it('Should work `exclude` option correctly', async () => {
@@ -250,8 +252,8 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
 
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
-      expect(output)
-        .toContain(`export type Sdk = ReturnType<typeof getSdk>;export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+      expect(output).toContain(
+        `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
   return {
     ...sdk,
@@ -263,7 +265,56 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
     }
   };
 }
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
+      )
+    })
+
+    it('Should work `useSWRInfinite` option correctly', async () => {
+      const config: PluginsConfig = {
+        useSWRInfinite: ['feed[24]'],
+      }
+      const docs = [{ location: '', document: basicDoc }]
+
+      const content = (await plugin(schema, docs, config, {
+        outputFile: 'graphql.ts',
+      })) as Types.ComplexPluginOutput
+
+      const usage = basicUsage
+      const output = await validate(content, config, docs, schema, usage)
+      expect(content.prepend).toContain(
+        `import useSWR, { useSWRInfinite, ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface, SWRInfiniteConfigInterface } from 'swr';`
+      )
+      expect(output).toContain(
+        `export type SWRInfiniteKeyLoader<Data = any> = (
+  index: number,
+  previousPageData: Data | null
+) => string | any[] | null;
+export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  const sdk = getSdk(client, withWrapper);
+  return {
+    ...sdk,
+    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
+      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
+    },
+    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
+      return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
+    },
+    useFeed2Infinite(getKey: SWRInfiniteKeyLoader<Feed2Query>, variables: Feed2QueryVariables, config?: SWRInfiniteConfigInterface<Feed2Query>) {
+      return useSWRInfinite<Feed2Query>(getKey, () => sdk.feed2(variables), config);
+    },
+    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
+      return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
+    },
+    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
+      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
+    },
+    useFeed4Infinite(getKey: SWRInfiniteKeyLoader<Feed4Query>, variables?: Feed4QueryVariables, config?: SWRInfiniteConfigInterface<Feed4Query>) {
+      return useSWRInfinite<Feed4Query>(getKey, () => sdk.feed4(variables), config);
+    }
+  };
+}
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
+      )
     })
   })
 })
