@@ -17,7 +17,7 @@ generates:
 config:
   rawRequest: false
   # exclude queries that are matched by micromatch (case-sensitive)
-  exclude:
+  excludeQueries:
     - foo*
     - bar
 ```

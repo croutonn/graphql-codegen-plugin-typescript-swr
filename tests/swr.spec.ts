@@ -240,9 +240,9 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
       )
     })
 
-    it('Should work `exclude` option correctly', async () => {
+    it('Should work `excludeQueries` option correctly', async () => {
       const config: PluginsConfig = {
-        exclude: ['feed[2-3]', 'hoge', 'foo'],
+        excludeQueries: ['feed[2-3]', 'hoge', 'foo'],
       }
       const docs = [{ location: '', document: basicDoc }]
 

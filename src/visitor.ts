@@ -13,7 +13,7 @@ import { RawSWRPluginConfig } from './config'
 
 export interface SWRPluginConfig extends ClientSideBasePluginConfig {
   rawRequest: boolean
-  exclude: string | string[]
+  excludeQueries: string | string[]
   useSWRInfinite: string | string[]
 }
 
@@ -37,7 +37,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     rawConfig: RawSWRPluginConfig
   ) {
     super(schema, fragments, rawConfig, {
-      exclude: rawConfig.exclude || null,
+      excludeQueries: rawConfig.excludeQueries || null,
       useSWRInfinite: rawConfig.useSWRInfinite || null,
     })
 
@@ -93,19 +93,20 @@ export class SWRVisitor extends ClientSideBaseVisitor<
   }
 
   public get sdkContent(): string {
-    const { exclude } = this.config
-    const disabledExclude =
-      !exclude || (Array.isArray(exclude) && !exclude.length)
+    const { excludeQueries } = this.config
+    const disabledexcludeQueries =
+      !excludeQueries ||
+      (Array.isArray(excludeQueries) && !excludeQueries.length)
     const allPossibleActions = this._operationsToInclude
       .filter((o) => {
         if (o.operationType !== 'Query') {
           return false
         }
-        if (disabledExclude) {
+        if (disabledexcludeQueries) {
           return true
         }
         const name = o.node.name.value
-        return !glob.isMatch(name, exclude)
+        return !glob.isMatch(name, excludeQueries)
       })
       .map((o) => {
         const optionalVariables =

@@ -23,6 +23,6 @@ export interface RawSWRPluginConfig extends RawClientSideBasePluginConfig {
    * ```
    */
   rawRequest?: boolean
-  exclude?: string | string[]
+  excludeQueries?: string | string[]
   useSWRInfinite?: string | string[]
 }
