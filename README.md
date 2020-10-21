@@ -20,6 +20,10 @@ config:
   excludeQueries:
     - foo*
     - bar
+  # add `useSWRInfinite` wrapper for the queries that are matched by micromatch (case-sensitive)
+  useSWRInfinite:
+    - hoge
+    - bar{1,3}
 ```
 
 ```typescript
