@@ -30,30 +30,50 @@ config:
 // sdk.ts
 import { GraphQLClient } from 'graphql-request'
 import { getSdkWithHooks } from './graphql'
+import { getJwt } from './jwt'
 
-const sdk = getSdkWithHooks(
-  new GraphQLClient(`${process.env.API_URL}/graphql`, {
-    cache: typeof window === 'object' ? 'default' : 'no-cache',
-  })
-)
+const sdk = () => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  const jwt = getJwt()
+  if (jwt) {
+    headers.Authorization = `Bearer ${jwt}`
+  }
+  return getSdkWithHooks(
+    new GraphQLClient(`${process.env.NEXT_PUBLIC_API_URL}`, {
+      headers,
+    })
+  )
+}
 
 export default sdk
 ```
 
 ```tsx
-// Article.tsx
+// pages/posts/[slug].tsx
+import { GetStaticProps, GetStaticPropsResult } from 'next'
+import ErrorPage from 'next/error'
+import { useRouter } from 'next/router'
+import Article from '../components/Article'
 import sdk from '../sdk'
 
-type StaticPropsParams = { slug: string }
-export const getStaticProps: GetStaticProps<StaticProps, StaticPropsParams> = async ({
+type StaticParams = { slug: string }
+type StaticProps = StaticParams & {
+  initialData: {
+    articleBySlug: NonNullable<GetArticleQuery['articleBySlug']>
+  }
+}
+type ArticlePageProps = StaticProps & { preview?: boolean }
+
+export const getStaticProps: GetStaticProps<StaticProps, StaticParams> = async ({
   params,
   preview = false,
+  previewData
 }) => {
   if (!params) {
     throw new Error('Parameter is invalid!')
   }
 
-  const { articleBySlug: article } = await sdk.GetArticle({
+  const { articleBySlug: article } = await sdk().GetArticle({
     slug: params.slug,
   })
 
@@ -61,21 +81,48 @@ export const getStaticProps: GetStaticProps<StaticProps, StaticPropsParams> = as
     throw new Error('Article is not found!')
   }
 
-  return {
-    props: {
-      slug: params.slug,
-      preview,
-      initialData: {
-        articleBySlug: article
-      }
+  const props: ArticlePageProps = {
+    slug: params.slug,
+    preview,
+    initialData: {
+      articleBySlug: article
     }
+  }
+
+  return {
+    props: preview
+      ? {
+          ...props,
+          ...previewData,
+        }
+      : props,
   }
 })
 
-export const Article = ({ slug, initialData, preview }: ArticleProps): JSX.Element => {
-  const { data: { article } } = sdk.useGetArticle(
-    'UniqueKeyForTheRequest', { slug }, { initialData }
+export const ArticlePage = ({ slug, initialData, preview }: ArticlePageProps): JSX.Element => {
+  const router = useRouter()
+  const { data: { article }, mutate: mutateArticle } = sdk().useGetArticle(
+    `UniqueKeyForTheRequest/${slug}`, { slug }, { initialData }
   )
-  // ...
+
+  if (!router.isFallback && !article) {
+    return <ErrorPage statusCode={404} />
+  }
+
+  // because of typescript problem
+  if (!article) {
+    throw new Error('Article is not found!')
+  }
+
+  return (
+    <Layout preview={preview}>
+      <>
+        <Head>
+          <title>{article.title}</title>
+        </Head>
+        <Article article={article} />
+      </>
+    </Layout>
+  )
 }
 ```
