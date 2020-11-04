@@ -9,6 +9,8 @@ A [GraphQL code generator](https://graphql-code-generator.com/) plug-in that aut
 # Add `plugin-typescript-swr` below `typescript-graphql-request`
 generates:
   path/to/graphql.ts:
+    schema: 'schemas/github.graphql'
+    documents: 'src/services/github/**/*.graphql'
     plugins:
       - typescript
       - typescript-operations
