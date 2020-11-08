@@ -1,0 +1,23 @@
+{
+  "extends": ["config:base"],
+  "automerge": true,
+  "rangeStrategy": "bump",
+  "postUpdateOptions": ["yarnDedupeFewer"],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "suppressNotifications": [
+    "prIgnoreNotification",
+    "deprecationWarningIssues",
+    "onboardingClose"
+  ],
+  "packageRules": [
+    {
+      "depTypeList": ["peerDependencies"],
+      "enabled": false
+    }
+  ]
+}
