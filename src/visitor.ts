@@ -133,7 +133,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
             o.operationResultType
           }>}>) {
             return useSWR<SWRRawResponse<${o.operationResultType}>>(${
-            autogenSWRKey ? `genKey('${pascalName}', variables)` : 'key'
+            autogenSWRKey
+              ? `genKey<${o.operationVariablesTypes}>('${pascalName}', variables)`
+              : 'key'
           }, () => sdk.${o.node.name.value}(variables), config);
         }`)
 
@@ -161,7 +163,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
           o.operationVariablesTypes
         }, config?: SWRConfigInterface<${o.operationResultType}>) {
   return useSWR<${o.operationResultType}>(${
-          autogenSWRKey ? `genKey('${pascalName}', variables)` : 'key'
+          autogenSWRKey
+            ? `genKey<${o.operationVariablesTypes}>('${pascalName}', variables)`
+            : 'key'
         }, () => sdk.${o.node.name.value}(variables), config);
 }`)
 
@@ -202,7 +206,7 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
   const sdk = getSdk(client, withWrapper);
 ${
   autogenSWRKey
-    ? '  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object?: V): SWRKeyInterface => [name, ...Object.keys(object || {}).sort().map(key => object[key])];\n'
+    ? '  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];\n'
     : ''
 }  return {
     ...sdk,
