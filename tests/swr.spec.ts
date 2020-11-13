@@ -317,4 +317,40 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
       )
     })
   })
+
+  it('Should work `autogenSWRKey` option correctly', async () => {
+    const config: PluginsConfig = {
+      autogenSWRKey: true,
+    }
+    const docs = [{ location: '', document: basicDoc }]
+
+    const content = (await plugin(schema, docs, config, {
+      outputFile: 'graphql.ts',
+    })) as Types.ComplexPluginOutput
+
+    const usage = basicUsage
+    const output = await validate(content, config, docs, schema, usage)
+    expect(output).toContain(
+      `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  const sdk = getSdk(client, withWrapper);
+  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object?: V): SWRKeyInterface => [name, ...Object.keys(object || {}).sort().map(key => object[key])];
+  return {
+    ...sdk,
+    useFeed(variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
+      return useSWR<FeedQuery>(genKey('Feed', variables), () => sdk.feed(variables), config);
+    },
+    useFeed2(variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
+      return useSWR<Feed2Query>(genKey('Feed2', variables), () => sdk.feed2(variables), config);
+    },
+    useFeed3(variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
+      return useSWR<Feed3Query>(genKey('Feed3', variables), () => sdk.feed3(variables), config);
+    },
+    useFeed4(variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
+      return useSWR<Feed4Query>(genKey('Feed4', variables), () => sdk.feed4(variables), config);
+    }
+  };
+}
+export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
+    )
+  })
 })

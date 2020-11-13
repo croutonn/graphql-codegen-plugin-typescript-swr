@@ -15,6 +15,7 @@ export interface SWRPluginConfig extends ClientSideBasePluginConfig {
   rawRequest: boolean
   excludeQueries: string | string[]
   useSWRInfinite: string | string[]
+  autogenSWRKey: boolean
 }
 
 export class SWRVisitor extends ClientSideBaseVisitor<
@@ -39,6 +40,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     super(schema, fragments, rawConfig, {
       excludeQueries: rawConfig.excludeQueries || null,
       useSWRInfinite: rawConfig.useSWRInfinite || null,
+      autogenSWRKey: rawConfig.autogenSWRKey || false,
     })
 
     this._enabledInfinite =
@@ -93,7 +95,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
   }
 
   public get sdkContent(): string {
-    const { excludeQueries } = this.config
+    const { excludeQueries, autogenSWRKey } = this.config
     const disabledexcludeQueries =
       !excludeQueries ||
       (Array.isArray(excludeQueries) && !excludeQueries.length)
@@ -116,22 +118,23 @@ export class SWRVisitor extends ClientSideBaseVisitor<
             (v) => v.type.kind !== Kind.NON_NULL_TYPE || v.defaultValue
           )
         const name = o.node.name.value
+        const pascalName = pascalCase(o.node.name.value)
         const enabledInfinite =
           this._enabledInfinite &&
           glob.isMatch(name, this.config.useSWRInfinite)
         const codes: string[] = []
 
         if (this.config.rawRequest) {
-          codes.push(`use${pascalCase(
-            o.node.name.value
-          )}(key: SWRKeyInterface, variables${optionalVariables ? '?' : ''}: ${
+          codes.push(`use${pascalCase(o.node.name.value)}(${
+            autogenSWRKey ? '' : 'key: SWRKeyInterface, '
+          }variables${optionalVariables ? '?' : ''}: ${
             o.operationVariablesTypes
           }, config?: SWRConfigInterface<SWRRawResponse<${
             o.operationResultType
           }>}>) {
-            return useSWR<SWRRawResponse<${
-              o.operationResultType
-            }>>(key, () => sdk.${o.node.name.value}(variables), config);
+            return useSWR<SWRRawResponse<${o.operationResultType}>>(${
+            autogenSWRKey ? `genKey('${pascalName}', variables)` : 'key'
+          }, () => sdk.${o.node.name.value}(variables), config);
         }`)
 
           if (enabledInfinite) {
@@ -152,14 +155,14 @@ export class SWRVisitor extends ClientSideBaseVisitor<
           return codes
         }
 
-        codes.push(`use${pascalCase(
-          o.node.name.value
-        )}(key: SWRKeyInterface, variables${optionalVariables ? '?' : ''}: ${
+        codes.push(`use${pascalName}(${
+          autogenSWRKey ? '' : 'key: SWRKeyInterface, '
+        }variables${optionalVariables ? '?' : ''}: ${
           o.operationVariablesTypes
         }, config?: SWRConfigInterface<${o.operationResultType}>) {
-  return useSWR<${o.operationResultType}>(key, () => sdk.${
-          o.node.name.value
-        }(variables), config);
+  return useSWR<${o.operationResultType}>(${
+          autogenSWRKey ? `genKey('${pascalName}', variables)` : 'key'
+        }, () => sdk.${o.node.name.value}(variables), config);
 }`)
 
         if (enabledInfinite) {
@@ -197,7 +200,11 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     return `${types.join('\n')}
 export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
-  return {
+${
+  autogenSWRKey
+    ? '  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object?: V): SWRKeyInterface => [name, ...Object.keys(object || {}).sort().map(key => object[key])];\n'
+    : ''
+}  return {
     ...sdk,
 ${allPossibleActions.join(',\n')}
   };
