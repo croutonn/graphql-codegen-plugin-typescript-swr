@@ -24,6 +24,10 @@ config:
   useSWRInfinite:
     - hoge
     - bar{1,3}
+  # generate keys automatically.
+  # but, ​the cache may not work unless you separate the variables object into an external file and use it,
+  # or use a primitive type for the value of each field.
+  autogenSWRKey: true #(default: false)
 ```
 
 ```typescript
