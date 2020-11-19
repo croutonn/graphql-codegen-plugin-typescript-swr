@@ -611,7 +611,7 @@
     auto-bind "~4.0.0"
     tslib "~2.0.1"
 
-"@graphql-codegen/typescript-operations@^1.17.9":
+"@graphql-codegen/typescript-operations@^1.17.10":
   version "1.17.10"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-operations/-/typescript-operations-1.17.10.tgz#e93e28008b0a50620024b7ecf39fb86ef06dfc8b"
   integrity sha512-J51+x+Z+UuaH6vW4/qrdSNGL8H5V6cdRSwrBZGZKwUYrWjq3azATCbtzqIPqE6TLM7wHtZFNL967EUG5YeugXw==
@@ -632,7 +632,7 @@
     auto-bind "~4.0.0"
     tslib "~2.0.1"
 
-"@graphql-codegen/visitor-plugin-common@^1.17.16", "@graphql-codegen/visitor-plugin-common@^1.17.17", "@graphql-codegen/visitor-plugin-common@^1.17.18":
+"@graphql-codegen/visitor-plugin-common@^1.17.16", "@graphql-codegen/visitor-plugin-common@^1.17.18":
   version "1.17.18"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-1.17.18.tgz#68bd0465e29e6aef20617894fd668625daf81acc"
   integrity sha512-/E083ja1vcl5GCnoeC7BObbTq6N1hpIXF3lQElLMvVvegSRzEm3XtvMNGQIumd6t3RDdpGT87ebSAS3lKPj8Pw==
@@ -985,7 +985,7 @@
   dependencies:
     "@types/braces" "*"
 
-"@types/node@*", "@types/node@^14.14.7":
+"@types/node@*", "@types/node@^14.14.8":
   version "14.14.8"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.8.tgz#2127bd81949a95c8b7d3240f3254352d72563aec"
   integrity sha512-z/5Yd59dCKI5kbxauAJgw6dLPzW+TNOItNE00PkpzNwUIEwdj/Lsqwq94H5DdYBX7C13aRA0CY32BK76+neEUA==
@@ -5235,7 +5235,7 @@ supports-hyperlinks@^2.0.0:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
 
-swr@^0.3.8:
+swr@^0.3.9:
   version "0.3.9"
   resolved "https://registry.yarnpkg.com/swr/-/swr-0.3.9.tgz#a179a795244c7b68684af6a632f1ad579e6a69e0"
   integrity sha512-lyN4SjBzpoW4+v3ebT7JUtpzf9XyzrFwXIFv+E8ZblvMa5enSNaUBs4EPkL8gGA/GDMLngEmB53o5LaNboAPfg==
