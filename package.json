@@ -47,7 +47,7 @@
     "@graphql-codegen/typescript-operations": "^1.17.12",
     "@types/jest": "^26.0.19",
     "@types/micromatch": "^4.0.1",
-    "@types/node": "^14.14.12",
+    "@types/node": "^14.14.13",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "eslint": "^7.13.0",
     "eslint-config-airbnb": "^18.2.1",
