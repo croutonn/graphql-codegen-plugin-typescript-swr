@@ -34,7 +34,7 @@
     "@graphql-codegen/visitor-plugin-common": "^1.17.21",
     "auto-bind": "^4.0.0",
     "graphql": "^15.4.0",
-    "graphql-request": "^3.3.0",
+    "graphql-request": "^3.4.0",
     "micromatch": "^4.0.2",
     "pascal-case": "^3.1.2",
     "swr": "^0.3.9",
