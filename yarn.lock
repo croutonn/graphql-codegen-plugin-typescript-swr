@@ -5209,9 +5209,9 @@ supports-hyperlinks@^2.0.0:
     supports-color "^7.0.0"
 
 swr@^0.3.9:
-  version "0.3.9"
-  resolved "https://registry.yarnpkg.com/swr/-/swr-0.3.9.tgz#a179a795244c7b68684af6a632f1ad579e6a69e0"
-  integrity sha512-lyN4SjBzpoW4+v3ebT7JUtpzf9XyzrFwXIFv+E8ZblvMa5enSNaUBs4EPkL8gGA/GDMLngEmB53o5LaNboAPfg==
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/swr/-/swr-0.3.10.tgz#666bd6eb67cf5dc550018595d953e605ec457490"
+  integrity sha512-4yUM9RAQWNih94Tm8BlOyqgxB9QdwloVb8BOv66hu64+pp+cdKcvw+0pRqnpxALdoKOj2aK2ue0R+yeVL2tSAQ==
   dependencies:
     dequal "2.0.2"
 
