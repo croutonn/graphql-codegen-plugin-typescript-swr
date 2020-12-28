@@ -69,7 +69,7 @@
   },
   "resolutions": {
     "graphql": "^15.4.0",
-    "graphql-language-service-interface": "2.5.0",
+    "graphql-language-service-interface": "2.6.0",
     "**/@types/graphql-upload/graphql": "^15.4.0"
   },
   "files": [
