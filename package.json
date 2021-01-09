@@ -37,8 +37,8 @@
     "graphql-request": "^3.4.0",
     "micromatch": "^4.0.2",
     "pascal-case": "^3.1.2",
-    "swr": "^0.3.11",
-    "tslib": "^2.0.3"
+    "swr": "^0.4.0",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@graphql-codegen/testing": "^1.17.7",
@@ -69,7 +69,7 @@
   },
   "resolutions": {
     "graphql": "^15.4.0",
-    "graphql-language-service-interface": "2.7.0",
+    "graphql-language-service-interface": "2.8.2",
     "**/@types/graphql-upload/graphql": "^15.4.0"
   },
   "files": [
