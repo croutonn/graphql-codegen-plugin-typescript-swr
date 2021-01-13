@@ -288,15 +288,21 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
         `export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
-) => Partial<Variables> | null;
+) => [keyof Variables, Variables[keyof Variables] | null] | null;
 export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
   const utilsForInfinite = {
-    generateGetKey: <Data = unknown, Variables = unknown>(id: string, getKey: SWRInfiniteKeyLoader<Data, Variables>) => (pageIndex: number, previousData: Data | null) => {
-        const key = getKey(pageIndex, previousData)
-        return key ? [id, key] : null
+    generateGetKey: <Data = unknown, Variables = unknown>(
+      id: string,
+      getKey: SWRInfiniteKeyLoader<Data, Variables>
+    ) => (pageIndex: number, previousData: Data | null) => {
+      const key = getKey(pageIndex, previousData)
+      return key ? [id, ...key] : null
     },
-    generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (...params: unknown[]) => query(Object.assign({}, variables, ...params.slice(1)))
+    generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (
+        fieldName: keyof Variables,
+        fieldValue: Variables[typeof fieldName]
+      ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
   }
   return {
     ...sdk,
