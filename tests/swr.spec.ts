@@ -285,12 +285,19 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
         `import useSWR, { useSWRInfinite, ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface, SWRInfiniteConfigInterface } from 'swr';`
       )
       expect(output).toContain(
-        `export type SWRInfiniteKeyLoader<Data = any> = (
+        `export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
-) => string | any[] | null;
+) => Variables | null;
 export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
+  const utilsForInfinite = {
+    generateGetKey: <Data = unknown, Variables = unknown>(getKey: SWRInfiniteKeyLoader<Data, Variables>) => (pageIndex: number, previousData: Data | null) => {
+        const key = getKey(pageIndex, previousData)
+        return key ? [key] : key
+    },
+    generateFetcher: <Variables = unknown>(query: (...params: unknown[]) => unknown, variables?: Variables) => (...params) => query(Object.assign({}, variables, ...params))
+  }
   return {
     ...sdk,
     useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
@@ -299,8 +306,11 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
     useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
       return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
     },
-    useFeed2Infinite(getKey: SWRInfiniteKeyLoader<Feed2Query>, variables: Feed2QueryVariables, config?: SWRInfiniteConfigInterface<Feed2Query>) {
-      return useSWRInfinite<Feed2Query>(getKey, () => sdk.feed2(variables), config);
+    useFeed2Infinite(getKey: SWRInfiniteKeyLoader<Feed2Query, Feed2QueryVariables>, variables: Feed2QueryVariables, config?: SWRInfiniteConfigInterface<Feed2Query>) {
+      return useSWRInfinite<Feed2Query>(
+        utilsForInfinite.generateGetKey<Feed2Query, Feed2QueryVariables>(getKey),
+        utilsForInfinite.generateFetcher<Feed2QueryVariables>(sdk.feed2, variables),
+        config);
     },
     useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
       return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
@@ -308,8 +318,11 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
     useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
       return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
     },
-    useFeed4Infinite(getKey: SWRInfiniteKeyLoader<Feed4Query>, variables?: Feed4QueryVariables, config?: SWRInfiniteConfigInterface<Feed4Query>) {
-      return useSWRInfinite<Feed4Query>(getKey, () => sdk.feed4(variables), config);
+    useFeed4Infinite(getKey: SWRInfiniteKeyLoader<Feed4Query, Feed4QueryVariables>, variables?: Feed4QueryVariables, config?: SWRInfiniteConfigInterface<Feed4Query>) {
+      return useSWRInfinite<Feed4Query>(
+        utilsForInfinite.generateGetKey<Feed4Query, Feed4QueryVariables>(getKey),
+        utilsForInfinite.generateFetcher<Feed4QueryVariables>(sdk.feed4, variables),
+        config);
     }
   };
 }

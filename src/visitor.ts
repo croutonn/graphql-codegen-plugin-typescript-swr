@@ -172,14 +172,19 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         if (enabledInfinite) {
           codes.push(`use${pascalCase(
             o.node.name.value
-          )}Infinite(getKey: SWRInfiniteKeyLoader<${
-            o.operationResultType
+          )}Infinite(getKey: SWRInfiniteKeyLoader<${o.operationResultType}, ${
+            o.operationVariablesTypes
           }>, variables${optionalVariables ? '?' : ''}: ${
             o.operationVariablesTypes
           }, config?: SWRInfiniteConfigInterface<${o.operationResultType}>) {
-  return useSWRInfinite<${o.operationResultType}>(getKey, () => sdk.${
+  return useSWRInfinite<${o.operationResultType}>(
+    utilsForInfinite.generateGetKey<${o.operationResultType}, ${
+            o.operationVariablesTypes
+          }>(getKey),
+    utilsForInfinite.generateFetcher<${o.operationVariablesTypes}>(sdk.${
             o.node.name.value
-          }(variables), config);
+          }, variables),
+    config);
 }`)
         }
 
@@ -195,20 +200,30 @@ export class SWRVisitor extends ClientSideBaseVisitor<
       )
     }
     if (this._enabledInfinite) {
-      types.push(`export type SWRInfiniteKeyLoader<Data = any> = (
+      types.push(`export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
-) => string | any[] | null;`)
+) => Variables | null;`)
     }
 
     return `${types.join('\n')}
 export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
 ${
-  autogenSWRKey
-    ? '  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];\n'
+  this._enabledInfinite
+    ? `  const utilsForInfinite = {
+    generateGetKey: <Data = unknown, Variables = unknown>(getKey: SWRInfiniteKeyLoader<Data, Variables>) => (pageIndex: number, previousData: Data | null) => {
+        const key = getKey(pageIndex, previousData)
+        return key ? [key] : key
+    },
+    generateFetcher: <Variables = unknown>(query: (...params: unknown[]) => unknown, variables?: Variables) => (...params) => query(Object.assign({}, variables, ...params))
+  }\n`
     : ''
-}  return {
+}${
+      autogenSWRKey
+        ? '  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];\n'
+        : ''
+    }  return {
     ...sdk,
 ${allPossibleActions.join(',\n')}
   };

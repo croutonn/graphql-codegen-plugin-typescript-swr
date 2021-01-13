@@ -2,7 +2,7 @@
 
 A [GraphQL code generator](https://graphql-code-generator.com/) plug-in that automatically generates utility functions for [SWR](https://swr.vercel.app/).
 
-# Example
+## Example
 
 ```yaml
 # codegen.yml
@@ -56,11 +56,12 @@ export default sdk
 
 ```tsx
 // pages/posts/[slug].tsx
-import { GetStaticProps, GetStaticPropsResult } from 'next'
+import { GetStaticProps, NextPage } from 'next'
 import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import Article from '../components/Article'
 import sdk from '../sdk'
+import { GetArticleQuery } from '../graphql'
 
 type StaticParams = { slug: string }
 type StaticProps = StaticParams & {
@@ -105,7 +106,7 @@ export const getStaticProps: GetStaticProps<StaticProps, StaticParams> = async (
   }
 })
 
-export const ArticlePage = ({ slug, initialData, preview }: ArticlePageProps): JSX.Element => {
+export const ArticlePage: NextPage<ArticlePageProps> = ({ slug, initialData, preview }) => {
   const router = useRouter()
   const { data: { article }, mutate: mutateArticle } = sdk().useGetArticle(
     `UniqueKeyForTheRequest/${slug}`, { slug }, { initialData }
@@ -131,4 +132,21 @@ export const ArticlePage = ({ slug, initialData, preview }: ArticlePageProps): J
     </Layout>
   )
 }
+```
+
+### Example for useSWRInfinite
+
+```tsx
+const { data, size, setSize } = sdk.useMyQueryInfinite(
+  (pageIndex, previousPageData) => {
+    if (previousPageData && !previousPageData.posts.length) {
+      return null // reached the end
+    }
+    return {
+      page: pageIndex,
+    }
+  },
+  variables, // GraphQL Query Variables
+  config // Configuration of useSWRInfinite
+)
 ```
