@@ -181,9 +181,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     utilsForInfinite.generateGetKey<${o.operationResultType}, ${
             o.operationVariablesTypes
           }>(getKey),
-    utilsForInfinite.generateFetcher<${o.operationVariablesTypes}>(sdk.${
-            o.node.name.value
-          }, variables),
+    utilsForInfinite.generateFetcher<${o.operationResultType}, ${
+            o.operationVariablesTypes
+          }>(sdk.${o.node.name.value}, variables),
     config);
 }`)
         }
@@ -214,9 +214,9 @@ ${
     ? `  const utilsForInfinite = {
     generateGetKey: <Data = unknown, Variables = unknown>(getKey: SWRInfiniteKeyLoader<Data, Variables>) => (pageIndex: number, previousData: Data | null) => {
         const key = getKey(pageIndex, previousData)
-        return key ? [key] : key
+        return key ? [key] : null
     },
-    generateFetcher: <Variables = unknown>(query: (...params: unknown[]) => unknown, variables?: Variables) => (...params) => query(Object.assign({}, variables, ...params))
+    generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (...params: unknown[]) => query(Object.assign({}, variables, ...params))
   }\n`
     : ''
 }${
