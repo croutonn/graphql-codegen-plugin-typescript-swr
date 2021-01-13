@@ -172,15 +172,17 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         if (enabledInfinite) {
           codes.push(`use${pascalCase(
             o.node.name.value
-          )}Infinite(getKey: SWRInfiniteKeyLoader<${o.operationResultType}, ${
-            o.operationVariablesTypes
-          }>, variables${optionalVariables ? '?' : ''}: ${
+          )}Infinite(id: string, getKey: SWRInfiniteKeyLoader<${
+            o.operationResultType
+          }, ${o.operationVariablesTypes}>, variables${
+            optionalVariables ? '?' : ''
+          }: ${
             o.operationVariablesTypes
           }, config?: SWRInfiniteConfigInterface<${o.operationResultType}>) {
   return useSWRInfinite<${o.operationResultType}>(
     utilsForInfinite.generateGetKey<${o.operationResultType}, ${
             o.operationVariablesTypes
-          }>(getKey),
+          }>(id, getKey),
     utilsForInfinite.generateFetcher<${o.operationResultType}, ${
             o.operationVariablesTypes
           }>(sdk.${o.node.name.value}, variables),
@@ -212,11 +214,11 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
 ${
   this._enabledInfinite
     ? `  const utilsForInfinite = {
-    generateGetKey: <Data = unknown, Variables = unknown>(getKey: SWRInfiniteKeyLoader<Data, Variables>) => (pageIndex: number, previousData: Data | null) => {
+    generateGetKey: <Data = unknown, Variables = unknown>(id: string, getKey: SWRInfiniteKeyLoader<Data, Variables>) => (pageIndex: number, previousData: Data | null) => {
         const key = getKey(pageIndex, previousData)
-        return key ? [key] : null
+        return key ? [id, key] : null
     },
-    generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (...params: unknown[]) => query(Object.assign({}, variables, ...params))
+    generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (...params: unknown[]) => query(Object.assign({}, variables, ...params.slice(1)))
   }\n`
     : ''
 }${

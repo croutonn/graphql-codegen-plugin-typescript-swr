@@ -138,6 +138,7 @@ export const ArticlePage: NextPage<ArticlePageProps> = ({ slug, initialData, pre
 
 ```tsx
 const { data, size, setSize } = sdk.useMyQueryInfinite(
+  'id_for_caching',
   (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.posts.length) {
       return null // reached the end
