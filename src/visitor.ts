@@ -203,7 +203,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
       types.push(`export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
-) => Variables | null;`)
+) => Partial<Variables> | null;`)
     }
 
     return `${types.join('\n')}

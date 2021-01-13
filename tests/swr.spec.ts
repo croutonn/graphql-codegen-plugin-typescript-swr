@@ -288,7 +288,7 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
         `export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
-) => Variables | null;
+) => Partial<Variables> | null;
 export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   const sdk = getSdk(client, withWrapper);
   const utilsForInfinite = {
