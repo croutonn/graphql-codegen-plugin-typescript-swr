@@ -222,6 +222,7 @@ ${
       return key ? [id, ...key] : null
     },
     generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (
+        id: string,
         fieldName: keyof Variables,
         fieldValue: Variables[typeof fieldName]
       ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
