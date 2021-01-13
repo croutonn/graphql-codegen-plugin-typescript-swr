@@ -143,9 +143,7 @@ const { data, size, setSize } = sdk.useMyQueryInfinite(
     if (previousPageData && !previousPageData.posts.length) {
       return null // reached the end
     }
-    return {
-      page: pageIndex,
-    }
+    return ['page', pageIndex]
   },
   variables, // GraphQL Query Variables
   config // Configuration of useSWRInfinite
