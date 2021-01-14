@@ -140,10 +140,12 @@ export const ArticlePage: NextPage<ArticlePageProps> = ({ slug, initialData, pre
 const { data, size, setSize } = sdk.useMyQueryInfinite(
   'id_for_caching',
   (pageIndex, previousPageData) => {
-    if (previousPageData && !previousPageData.posts.length) {
-      return null // reached the end
-    }
-    return ['page', pageIndex]
+    if (previousPageData && !previousPageData.search.pageInfo.hasNextPage)
+      return null
+    return [
+      'after',
+      previousPageData ? previousPageData.search.pageInfo.endCursor : null,
+    ]
   },
   variables, // GraphQL Query Variables
   config // Configuration of useSWRInfinite
