@@ -1,3 +1,6 @@
+import fs from 'fs'
+import { resolve } from 'path'
+
 import { Types, mergeOutputs } from '@graphql-codegen/plugin-helpers'
 import { validateTs } from '@graphql-codegen/testing'
 import {
@@ -21,6 +24,10 @@ type PluginsConfig = Partial<
     GraphQLRequestPluginConfig &
     RawSWRPluginConfig
 >
+
+const readOutput = (name: string): string => {
+  return fs.readFileSync(resolve(__dirname, `./outputs/${name}.ts`), 'utf-8')
+}
 
 describe('SWR', () => {
   const schema = buildClientSchema(require('../dev-test/githunt/schema.json'))
@@ -136,27 +143,7 @@ async function test() {
 
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
-      expect(output).toContain(
-        `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);
-  return {
-    ...sdk,
-    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
-    },
-    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
-      return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
-    },
-    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
-      return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
-    },
-    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
-    }
-  };
-}
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
-      )
+      expect(output).toContain(readOutput('straight'))
     })
 
     it('Should generate the output from which mutation operation has been removed', async () => {
@@ -217,27 +204,7 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
 
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
-      expect(output).toContain(
-        `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);
-  return {
-    ...sdk,
-    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
-    },
-    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
-      return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
-    },
-    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
-      return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
-    },
-    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
-    }
-  };
-}
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
-      )
+      expect(output).toContain(readOutput('mutations'))
     })
 
     it('Should work `excludeQueries` option correctly', async () => {
@@ -252,21 +219,7 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
 
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
-      expect(output).toContain(
-        `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);
-  return {
-    ...sdk,
-    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
-    },
-    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
-    }
-  };
-}
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
-      )
+      expect(output).toContain(readOutput('excludeQueries'))
     })
 
     it('Should work `useSWRInfinite` option correctly', async () => {
@@ -284,63 +237,14 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
       expect(content.prepend).toContain(
         `import useSWR, { useSWRInfinite, ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface, SWRInfiniteConfigInterface } from 'swr';`
       )
-      expect(output).toContain(
-        `export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
-  index: number,
-  previousPageData: Data | null
-) => [keyof Variables, Variables[keyof Variables] | null] | null;
-export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);
-  const utilsForInfinite = {
-    generateGetKey: <Data = unknown, Variables = unknown>(
-      id: string,
-      getKey: SWRInfiniteKeyLoader<Data, Variables>
-    ) => (pageIndex: number, previousData: Data | null) => {
-      const key = getKey(pageIndex, previousData)
-      return key ? [id, ...key] : null
-    },
-    generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (
-        id: string,
-        fieldName: keyof Variables,
-        fieldValue: Variables[typeof fieldName]
-      ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
-  }
-  return {
-    ...sdk,
-    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
-    },
-    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
-      return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
-    },
-    useFeed2Infinite(id: string, getKey: SWRInfiniteKeyLoader<Feed2Query, Feed2QueryVariables>, variables: Feed2QueryVariables, config?: SWRInfiniteConfigInterface<Feed2Query>) {
-      return useSWRInfinite<Feed2Query>(
-        utilsForInfinite.generateGetKey<Feed2Query, Feed2QueryVariables>(id, getKey),
-        utilsForInfinite.generateFetcher<Feed2Query, Feed2QueryVariables>(sdk.feed2, variables),
-        config);
-    },
-    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
-      return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
-    },
-    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
-    },
-    useFeed4Infinite(id: string, getKey: SWRInfiniteKeyLoader<Feed4Query, Feed4QueryVariables>, variables?: Feed4QueryVariables, config?: SWRInfiniteConfigInterface<Feed4Query>) {
-      return useSWRInfinite<Feed4Query>(
-        utilsForInfinite.generateGetKey<Feed4Query, Feed4QueryVariables>(id, getKey),
-        utilsForInfinite.generateFetcher<Feed4Query, Feed4QueryVariables>(sdk.feed4, variables),
-        config);
-    }
-  };
-}
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
-      )
+      expect(output).toContain(readOutput('infinite'))
     })
   })
 
   it('Should work `autogenSWRKey` option correctly', async () => {
     const config: PluginsConfig = {
       autogenSWRKey: true,
+      useSWRInfinite: ['feed[24]'],
     }
     const docs = [{ location: '', document: basicDoc }]
 
@@ -350,27 +254,6 @@ export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
 
     const usage = basicUsage
     const output = await validate(content, config, docs, schema, usage)
-    expect(output).toContain(
-      `export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);
-  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];
-  return {
-    ...sdk,
-    useFeed(variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(genKey<FeedQueryVariables>('Feed', variables), () => sdk.feed(variables), config);
-    },
-    useFeed2(variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
-      return useSWR<Feed2Query>(genKey<Feed2QueryVariables>('Feed2', variables), () => sdk.feed2(variables), config);
-    },
-    useFeed3(variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
-      return useSWR<Feed3Query>(genKey<Feed3QueryVariables>('Feed3', variables), () => sdk.feed3(variables), config);
-    },
-    useFeed4(variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(genKey<Feed4QueryVariables>('Feed4', variables), () => sdk.feed4(variables), config);
-    }
-  };
-}
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
-    )
+    expect(output).toContain(readOutput('autogenSWRKey'))
   })
 })

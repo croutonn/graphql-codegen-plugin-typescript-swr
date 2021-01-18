@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   env: { es6: true },
-  ignorePatterns: ['node_modules', 'build', 'coverage'],
+  ignorePatterns: ['node_modules', 'build', 'coverage', 'tests/outputs'],
   globals: { BigInt: true, console: true, WebAssembly: true },
   overrides: [
     {
