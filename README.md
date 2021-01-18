@@ -1,12 +1,43 @@
-# graphql-codegen-plugin-typescript-swr
+# graphql-codegen-plugin-typescript-swr <!-- omit in toc -->
 
 A [GraphQL code generator](https://graphql-code-generator.com/) plug-in that automatically generates utility functions for [SWR](https://swr.vercel.app/).
 
-## Example
+## Table of Contents <!-- omit in toc -->
+
+- [API Reference](#api-reference)
+  - [`excludeQueries`](#excludequeries)
+  - [`useSWRInfinite`](#useswrinfinite)
+  - [`autogenSWRKey`](#autogenswrkey)
+- [Config Example](#config-example)
+- [Usage Examples](#usage-examples)
+  - [Pagination](#pagination)
+  - [Authorization](#authorization)
+  - [Next.js](#nextjs)
+
+## API Reference
+
+### `excludeQueries`
+
+type: `string | string[]` default: `""`
+
+Exclude queries that are matched by micromatch (case-sensitive).
+
+### `useSWRInfinite`
+
+type: `string | string[]` default: `""`
+
+Add `useSWRInfinite()` wrapper for the queries that are matched by micromatch (case-sensitive).
+
+### `autogenSWRKey`
+
+type: `boolean` default: `false`
+
+Generate key to use `useSWR()` automatically.  
+But, ​the cache may not work unless you separate the variables object into an external file and use it, or use a primitive type for the value of each field.
+
+## Config Example
 
 ```yaml
-# codegen.yml
-# Add `plugin-typescript-swr` below `typescript-graphql-request`
 generates:
   path/to/graphql.ts:
     schema: 'schemas/github.graphql'
@@ -14,31 +45,101 @@ generates:
     plugins:
       - typescript
       - typescript-operations
+      # Put `plugin-typescript-swr` below `typescript-graphql-request`
       - typescript-graphql-request
       - plugin-typescript-swr
 config:
   rawRequest: false
-  # exclude queries that are matched by micromatch (case-sensitive)
   excludeQueries:
     - foo*
     - bar
-  # add `useSWRInfinite` wrapper for the queries that are matched by micromatch (case-sensitive)
   useSWRInfinite:
     - hoge
     - bar{1,3}
-  # generate keys automatically.
-  # but, ​the cache may not work unless you separate the variables object into an external file and use it,
-  # or use a primitive type for the value of each field.
-  autogenSWRKey: true #(default: false)
+  autogenSWRKey: true
 ```
 
-```typescript
-// sdk.ts
+## Usage Examples
+
+For the given input:
+
+```graphql
+query continents {
+  continents {
+    name
+    countries {
+      ...CountryFields
+    }
+  }
+}
+
+fragment CountryFields on Country {
+  name
+  currency
+}
+```
+
+It generates SDK you can import and wrap your GraphQLClient instance, and get fully-typed SDK based on your operations:
+
+```tsx
 import { GraphQLClient } from 'graphql-request'
-import { getSdkWithHooks } from './graphql'
+import { getSdkWithHooks } from './sdk'
+
+function Continents() {
+  const client = new GraphQLClient('https://countries.trevorblades.com/')
+  const sdk = getSdkWithHooks(client)
+
+  const { data, error } = sdk.useContinents('Continents')
+
+  if (error) return <div>failed to load</div>
+  if (!data) return <div>loading...</div>
+
+  return (
+    <ul>
+      {data.continents.map((continent) => (
+        <li>{continent.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### Pagination
+
+#### codegen.yaml <!-- omit in toc -->
+
+```yaml
+config:
+  useSWRInfinite:
+    - MyQuery
+```
+
+#### Functional Component <!-- omit in toc -->
+
+```tsx
+const { data, size, setSize } = sdk.useMyQueryInfinite(
+  'id_for_caching',
+  (pageIndex, previousPageData) => {
+    if (previousPageData && !previousPageData.search.pageInfo.hasNextPage)
+      return null
+    return [
+      'after',
+      previousPageData ? previousPageData.search.pageInfo.endCursor : null,
+    ]
+  },
+  variables, // GraphQL Query Variables
+  config // Configuration of useSWRInfinite
+)
+```
+
+### Authorization
+
+```typescript
+import { GraphQLClient } from 'graphql-request'
+import { getSdkWithHooks } from './sdk'
 import { getJwt } from './jwt'
 
-const sdk = () => {
+const getAuthorizedSdk = () => {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   const jwt = getJwt()
   if (jwt) {
@@ -51,8 +152,10 @@ const sdk = () => {
   )
 }
 
-export default sdk
+export default getAuthorizedSdk
 ```
+
+### Next.js
 
 ```tsx
 // pages/posts/[slug].tsx
@@ -109,7 +212,7 @@ export const getStaticProps: GetStaticProps<StaticProps, StaticParams> = async (
 export const ArticlePage: NextPage<ArticlePageProps> = ({ slug, initialData, preview }) => {
   const router = useRouter()
   const { data: { article }, mutate: mutateArticle } = sdk().useGetArticle(
-    `UniqueKeyForTheRequest/${slug}`, { slug }, { initialData }
+    `GetArticle/${slug}`, { slug }, { initialData }
   )
 
   if (!router.isFallback && !article) {
@@ -132,22 +235,4 @@ export const ArticlePage: NextPage<ArticlePageProps> = ({ slug, initialData, pre
     </Layout>
   )
 }
-```
-
-### Example for useSWRInfinite
-
-```tsx
-const { data, size, setSize } = sdk.useMyQueryInfinite(
-  'id_for_caching',
-  (pageIndex, previousPageData) => {
-    if (previousPageData && !previousPageData.search.pageInfo.hasNextPage)
-      return null
-    return [
-      'after',
-      previousPageData ? previousPageData.search.pageInfo.endCursor : null,
-    ]
-  },
-  variables, // GraphQL Query Variables
-  config // Configuration of useSWRInfinite
-)
 ```
