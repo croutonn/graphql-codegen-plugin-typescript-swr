@@ -18,17 +18,74 @@ export interface SWRPluginConfig extends ClientSideBasePluginConfig {
   autogenSWRKey: boolean
 }
 
+export interface Operation {
+  node: OperationDefinitionNode
+  documentVariableName: string
+  operationType: string
+  operationResultType: string
+  operationVariablesTypes: string
+}
+
+export interface ComposeQueryHandlerConfig {
+  autogenKey: boolean
+  infinite: boolean
+  rawRequest: boolean
+}
+
+const composeQueryHandler = (
+  operation: Operation,
+  config: ComposeQueryHandlerConfig
+): string[] => {
+  const codes: string[] = []
+  const { node } = operation
+  const optionalVariables =
+    !node.variableDefinitions ||
+    node.variableDefinitions.length === 0 ||
+    node.variableDefinitions.every(
+      (v) => v.type.kind !== Kind.NON_NULL_TYPE || v.defaultValue
+    )
+      ? '?'
+      : ''
+  const name = node.name.value
+  const pascalName = pascalCase(node.name.value)
+  const responseType = config.rawRequest
+    ? `SWRRawResponse<${operation.operationResultType}>`
+    : operation.operationResultType
+  const variablesType = operation.operationVariablesTypes
+
+  codes.push(`use${pascalName}(${
+    config.autogenKey ? '' : 'key: SWRKeyInterface, '
+  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}>) {
+  return useSWR<${responseType}>(${
+    config.autogenKey
+      ? `genKey<${variablesType}>('${pascalName}', variables)`
+      : 'key'
+  }, () => sdk.${name}(variables), config);
+}`)
+
+  if (config.infinite) {
+    codes.push(`use${pascalName}Infinite(${
+      config.autogenKey ? '' : 'id: string, '
+    }getKey: SWRInfiniteKeyLoader<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfigInterface<${responseType}>) {
+  return useSWRInfinite<${responseType}>(
+    utilsForInfinite.generateGetKey<${responseType}, ${variablesType}>(${
+      config.autogenKey
+        ? `genKey<${variablesType}>('${pascalName}', variables)`
+        : 'id'
+    }, getKey),
+    utilsForInfinite.generateFetcher<${responseType}, ${variablesType}>(sdk.${name}, variables),
+    config);
+}`)
+  }
+
+  return codes
+}
+
 export class SWRVisitor extends ClientSideBaseVisitor<
   RawSWRPluginConfig,
   SWRPluginConfig
 > {
-  private _operationsToInclude: {
-    node: OperationDefinitionNode
-    documentVariableName: string
-    operationType: string
-    operationResultType: string
-    operationVariablesTypes: string
-  }[] = []
+  private _operationsToInclude: Operation[] = []
 
   private _enabledInfinite = false
 
@@ -95,10 +152,11 @@ export class SWRVisitor extends ClientSideBaseVisitor<
   }
 
   public get sdkContent(): string {
-    const { excludeQueries, autogenSWRKey } = this.config
+    const codes: string[] = []
+    const { config } = this
     const disabledexcludeQueries =
-      !excludeQueries ||
-      (Array.isArray(excludeQueries) && !excludeQueries.length)
+      !config.excludeQueries ||
+      (Array.isArray(config.excludeQueries) && !config.excludeQueries.length)
     const allPossibleActions = this._operationsToInclude
       .filter((o) => {
         if (o.operationType !== 'Query') {
@@ -107,113 +165,42 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         if (disabledexcludeQueries) {
           return true
         }
-        const name = o.node.name.value
-        return !glob.isMatch(name, excludeQueries)
+        return !glob.isMatch(o.node.name.value, config.excludeQueries)
       })
-      .map((o) => {
-        const optionalVariables =
-          !o.node.variableDefinitions ||
-          o.node.variableDefinitions.length === 0 ||
-          o.node.variableDefinitions.every(
-            (v) => v.type.kind !== Kind.NON_NULL_TYPE || v.defaultValue
-          )
-        const name = o.node.name.value
-        const pascalName = pascalCase(o.node.name.value)
-        const enabledInfinite =
-          this._enabledInfinite &&
-          glob.isMatch(name, this.config.useSWRInfinite)
-        const codes: string[] = []
-
-        if (this.config.rawRequest) {
-          codes.push(`use${pascalCase(o.node.name.value)}(${
-            autogenSWRKey ? '' : 'key: SWRKeyInterface, '
-          }variables${optionalVariables ? '?' : ''}: ${
-            o.operationVariablesTypes
-          }, config?: SWRConfigInterface<SWRRawResponse<${
-            o.operationResultType
-          }>}>) {
-            return useSWR<SWRRawResponse<${o.operationResultType}>>(${
-            autogenSWRKey
-              ? `genKey<${o.operationVariablesTypes}>('${pascalName}', variables)`
-              : 'key'
-          }, () => sdk.${o.node.name.value}(variables), config);
-        }`)
-
-          if (enabledInfinite) {
-            codes.push(`use${pascalCase(
-              o.node.name.value
-            )}Infinite(getKey: SWRInfiniteKeyLoader<SWRRawResponse<${
-              o.operationResultType
-            }>>, variables${optionalVariables ? '?' : ''}: ${
-              o.operationVariablesTypes
-            }, config?: SWRInfiniteConfigInterface<SWRRawResponse<${
-              o.operationResultType
-            }>>) {
-            return useSWRInfinite<SWRRawResponse<${
-              o.operationResultType
-            }>>(getKey, () => sdk.${o.node.name.value}(variables), config);
-        }`)
-          }
-          return codes
-        }
-
-        codes.push(`use${pascalName}(${
-          autogenSWRKey ? '' : 'key: SWRKeyInterface, '
-        }variables${optionalVariables ? '?' : ''}: ${
-          o.operationVariablesTypes
-        }, config?: SWRConfigInterface<${o.operationResultType}>) {
-  return useSWR<${o.operationResultType}>(${
-          autogenSWRKey
-            ? `genKey<${o.operationVariablesTypes}>('${pascalName}', variables)`
-            : 'key'
-        }, () => sdk.${o.node.name.value}(variables), config);
-}`)
-
-        if (enabledInfinite) {
-          codes.push(`use${pascalCase(
-            o.node.name.value
-          )}Infinite(id: string, getKey: SWRInfiniteKeyLoader<${
-            o.operationResultType
-          }, ${o.operationVariablesTypes}>, variables${
-            optionalVariables ? '?' : ''
-          }: ${
-            o.operationVariablesTypes
-          }, config?: SWRInfiniteConfigInterface<${o.operationResultType}>) {
-  return useSWRInfinite<${o.operationResultType}>(
-    utilsForInfinite.generateGetKey<${o.operationResultType}, ${
-            o.operationVariablesTypes
-          }>(id, getKey),
-    utilsForInfinite.generateFetcher<${o.operationResultType}, ${
-            o.operationVariablesTypes
-          }>(sdk.${o.node.name.value}, variables),
-    config);
-}`)
-        }
-
-        return codes
-      })
+      .map((o) =>
+        composeQueryHandler(o, {
+          autogenKey: config.autogenSWRKey,
+          infinite:
+            this._enabledInfinite &&
+            glob.isMatch(o.node.name.value, config.useSWRInfinite),
+          rawRequest: config.rawRequest,
+        })
+      )
       .reduce((p, c) => p.concat(c), [])
       .map((s) => indentMultiline(s, 2))
 
-    const types: string[] = []
-    if (this.config.rawRequest) {
-      types.push(
+    // Add type of SWRRawResponse
+    if (config.rawRequest) {
+      codes.push(
         `type SWRRawResponse<Data = any> = { data?: Data | undefined; extensions?: any; headers: Headers; status: number; errors?: GraphQLError[] | undefined; };`
       )
     }
+
+    // Add type of SWRInfiniteKeyLoader
     if (this._enabledInfinite) {
-      types.push(`export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
+      codes.push(`export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
 ) => [keyof Variables, Variables[keyof Variables] | null] | null;`)
     }
 
-    return `${types.join('\n')}
-export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);
-${
-  this._enabledInfinite
-    ? `  const utilsForInfinite = {
+    // Add getSdkWithHooks function
+    codes.push(`export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  const sdk = getSdk(client, withWrapper);`)
+
+    // Add the utility for useSWRInfinite
+    if (this._enabledInfinite) {
+      codes.push(`  const utilsForInfinite = {
     generateGetKey: <Data = unknown, Variables = unknown>(
       id: string,
       getKey: SWRInfiniteKeyLoader<Data, Variables>
@@ -226,17 +213,26 @@ ${
         fieldName: keyof Variables,
         fieldValue: Variables[typeof fieldName]
       ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
-  }\n`
-    : ''
-}${
-      autogenSWRKey
-        ? '  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];\n'
-        : ''
-    }  return {
+  }`)
+    }
+
+    // Add the function for auto-generation key for SWR
+    if (config.autogenSWRKey) {
+      codes.push(
+        `  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];`
+      )
+    }
+
+    // Add return statement for getSdkWithHooks function and close the function
+    codes.push(`  return {
     ...sdk,
 ${allPossibleActions.join(',\n')}
   };
-}
-export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`
+}`)
+
+    // Add type of Sdk
+    codes.push(`export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+
+    return codes.join('\n')
   }
 }
