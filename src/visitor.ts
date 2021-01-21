@@ -55,8 +55,8 @@ const composeQueryHandler = (
 
   codes.push(`use${pascalName}(${
     config.autogenKey ? '' : 'key: SWRKeyInterface, '
-  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}>) {
-  return useSWR<${responseType}>(${
+  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}, ClientError>) {
+  return useSWR<${responseType}, ClientError>(${
     config.autogenKey
       ? `genKey<${variablesType}>('${pascalName}', variables)`
       : 'key'
@@ -66,8 +66,8 @@ const composeQueryHandler = (
   if (config.infinite) {
     codes.push(`use${pascalName}Infinite(${
       config.autogenKey ? '' : 'id: string, '
-    }getKey: SWRInfiniteKeyLoader<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfigInterface<${responseType}>) {
-  return useSWRInfinite<${responseType}>(
+    }getKey: SWRInfiniteKeyLoader<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfigInterface<${responseType}, ClientError>) {
+  return useSWRInfinite<${responseType}, ClientError>(
     utilsForInfinite.generateGetKey<${responseType}, ${variablesType}>(${
       config.autogenKey
         ? `genKey<${variablesType}>('${pascalName}', variables)`
@@ -107,6 +107,12 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         this.config.useSWRInfinite.length > 0)
 
     autoBind(this)
+
+    const typeImport = this.config.useTypeImports ? 'import type' : 'import'
+
+    this._additionalImports.push(
+      `${typeImport} { ClientError } from 'graphql-request/dist/types';`
+    )
 
     if (this.config.useTypeImports) {
       if (this._enabledInfinite) {

@@ -20,26 +20,26 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
   }
   return {
     ...sdk,
-    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
+    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery, ClientError>) {
+      return useSWR<FeedQuery, ClientError>(key, () => sdk.feed(variables), config);
     },
-    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query>) {
-      return useSWR<Feed2Query>(key, () => sdk.feed2(variables), config);
+    useFeed2(key: SWRKeyInterface, variables: Feed2QueryVariables, config?: SWRConfigInterface<Feed2Query, ClientError>) {
+      return useSWR<Feed2Query, ClientError>(key, () => sdk.feed2(variables), config);
     },
-    useFeed2Infinite(id: string, getKey: SWRInfiniteKeyLoader<Feed2Query, Feed2QueryVariables>, variables: Feed2QueryVariables, config?: SWRInfiniteConfigInterface<Feed2Query>) {
-      return useSWRInfinite<Feed2Query>(
+    useFeed2Infinite(id: string, getKey: SWRInfiniteKeyLoader<Feed2Query, Feed2QueryVariables>, variables: Feed2QueryVariables, config?: SWRInfiniteConfigInterface<Feed2Query, ClientError>) {
+      return useSWRInfinite<Feed2Query, ClientError>(
         utilsForInfinite.generateGetKey<Feed2Query, Feed2QueryVariables>(id, getKey),
         utilsForInfinite.generateFetcher<Feed2Query, Feed2QueryVariables>(sdk.feed2, variables),
         config);
     },
-    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query>) {
-      return useSWR<Feed3Query>(key, () => sdk.feed3(variables), config);
+    useFeed3(key: SWRKeyInterface, variables?: Feed3QueryVariables, config?: SWRConfigInterface<Feed3Query, ClientError>) {
+      return useSWR<Feed3Query, ClientError>(key, () => sdk.feed3(variables), config);
     },
-    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
+    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query, ClientError>) {
+      return useSWR<Feed4Query, ClientError>(key, () => sdk.feed4(variables), config);
     },
-    useFeed4Infinite(id: string, getKey: SWRInfiniteKeyLoader<Feed4Query, Feed4QueryVariables>, variables?: Feed4QueryVariables, config?: SWRInfiniteConfigInterface<Feed4Query>) {
-      return useSWRInfinite<Feed4Query>(
+    useFeed4Infinite(id: string, getKey: SWRInfiniteKeyLoader<Feed4Query, Feed4QueryVariables>, variables?: Feed4QueryVariables, config?: SWRInfiniteConfigInterface<Feed4Query, ClientError>) {
+      return useSWRInfinite<Feed4Query, ClientError>(
         utilsForInfinite.generateGetKey<Feed4Query, Feed4QueryVariables>(id, getKey),
         utilsForInfinite.generateFetcher<Feed4Query, Feed4QueryVariables>(sdk.feed4, variables),
         config);

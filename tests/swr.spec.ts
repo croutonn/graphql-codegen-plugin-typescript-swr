@@ -256,4 +256,22 @@ async function test() {
     const output = await validate(content, config, docs, schema, usage)
     expect(output).toContain(readOutput('autogenSWRKey'))
   })
+
+  it('Should work `rawRequest` option correctly', async () => {
+    const config: PluginsConfig = {
+      rawRequest: true,
+    }
+    const docs = [{ location: '', document: basicDoc }]
+
+    const content = (await plugin(schema, docs, config, {
+      outputFile: 'graphql.ts',
+    })) as Types.ComplexPluginOutput
+
+    const usage = basicUsage
+    const output = await validate(content, config, docs, schema, usage)
+    expect(output).toContain(
+      "import { ClientError } from 'graphql-request/dist/types'"
+    )
+    expect(output).toContain(readOutput('rawRequest'))
+  })
 })

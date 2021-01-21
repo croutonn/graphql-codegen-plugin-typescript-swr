@@ -2,11 +2,11 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
   const sdk = getSdk(client, withWrapper);
   return {
     ...sdk,
-    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery>) {
-      return useSWR<FeedQuery>(key, () => sdk.feed(variables), config);
+    useFeed(key: SWRKeyInterface, variables?: FeedQueryVariables, config?: SWRConfigInterface<FeedQuery, ClientError>) {
+      return useSWR<FeedQuery, ClientError>(key, () => sdk.feed(variables), config);
     },
-    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query>) {
-      return useSWR<Feed4Query>(key, () => sdk.feed4(variables), config);
+    useFeed4(key: SWRKeyInterface, variables?: Feed4QueryVariables, config?: SWRConfigInterface<Feed4Query, ClientError>) {
+      return useSWR<Feed4Query, ClientError>(key, () => sdk.feed4(variables), config);
     }
   };
 }
