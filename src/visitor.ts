@@ -3,6 +3,7 @@ import {
   ClientSideBaseVisitor,
   indentMultiline,
   LoadedFragment,
+  ParsedConfig,
 } from '@graphql-codegen/visitor-plugin-common'
 import autoBind from 'auto-bind'
 import { GraphQLSchema, Kind, OperationDefinitionNode } from 'graphql'
@@ -27,9 +28,11 @@ export interface Operation {
 }
 
 export interface ComposeQueryHandlerConfig {
-  autogenKey: boolean
+  autogenKey: SWRPluginConfig['autogenSWRKey']
   infinite: boolean
-  rawRequest: boolean
+  rawRequest: SWRPluginConfig['rawRequest']
+  typesPrefix: ParsedConfig['typesPrefix']
+  typesSuffix: ParsedConfig['typesSuffix']
 }
 
 const composeQueryHandler = (
@@ -66,7 +69,9 @@ const composeQueryHandler = (
   if (config.infinite) {
     codes.push(`use${pascalName}Infinite(${
       config.autogenKey ? '' : 'id: string, '
-    }getKey: SWRInfiniteKeyLoader<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfigInterface<${responseType}, ClientError>) {
+    }getKey: ${config.typesPrefix}SWRInfiniteKeyLoader${
+      config.typesSuffix
+    }<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfigInterface<${responseType}, ClientError>) {
   return useSWRInfinite<${responseType}, ClientError>(
     utilsForInfinite.generateGetKey<${responseType}, ${variablesType}>(${
       config.autogenKey
@@ -180,6 +185,8 @@ export class SWRVisitor extends ClientSideBaseVisitor<
             this._enabledInfinite &&
             glob.isMatch(o.node.name.value, config.useSWRInfinite),
           rawRequest: config.rawRequest,
+          typesPrefix: config.typesPrefix,
+          typesSuffix: config.typesSuffix,
         })
       )
       .reduce((p, c) => p.concat(c), [])
@@ -194,7 +201,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
 
     // Add type of SWRInfiniteKeyLoader
     if (this._enabledInfinite) {
-      codes.push(`export type SWRInfiniteKeyLoader<Data = unknown, Variables = unknown> = (
+      codes.push(`export type ${config.typesPrefix}SWRInfiniteKeyLoader${config.typesSuffix}<Data = unknown, Variables = unknown> = (
   index: number,
   previousPageData: Data | null
 ) => [keyof Variables, Variables[keyof Variables] | null] | null;`)
@@ -209,7 +216,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
       codes.push(`  const utilsForInfinite = {
     generateGetKey: <Data = unknown, Variables = unknown>(
       id: string,
-      getKey: SWRInfiniteKeyLoader<Data, Variables>
+      getKey: ${config.typesPrefix}SWRInfiniteKeyLoader${config.typesSuffix}<Data, Variables>
     ) => (pageIndex: number, previousData: Data | null) => {
       const key = getKey(pageIndex, previousData)
       return key ? [id, ...key] : null
@@ -237,7 +244,9 @@ ${allPossibleActions.join(',\n')}
 }`)
 
     // Add type of Sdk
-    codes.push(`export type SdkWithHooks = ReturnType<typeof getSdkWithHooks>;`)
+    codes.push(
+      `export type ${config.typesPrefix}SdkWithHooks${config.typesSuffix} = ReturnType<typeof getSdkWithHooks>;`
+    )
 
     return codes.join('\n')
   }

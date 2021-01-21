@@ -25,9 +25,8 @@ type PluginsConfig = Partial<
     RawSWRPluginConfig
 >
 
-const readOutput = (name: string): string => {
-  return fs.readFileSync(resolve(__dirname, `./outputs/${name}.ts`), 'utf-8')
-}
+const readOutput = (name: string): string =>
+  fs.readFileSync(resolve(__dirname, `./outputs/${name}.ts`), 'utf-8')
 
 describe('SWR', () => {
   const schema = buildClientSchema(require('../dev-test/githunt/schema.json'))
@@ -273,5 +272,32 @@ async function test() {
       "import { ClientError } from 'graphql-request/dist/types'"
     )
     expect(output).toContain(readOutput('rawRequest'))
+  })
+
+  it('Should work `typesPrefix` and `typesSuffix` option correctly', async () => {
+    const typesPrefix = 'P'
+    const typesSuffix = 'S'
+    const config: PluginsConfig = {
+      typesPrefix,
+      typesSuffix,
+      useSWRInfinite: ['feed'],
+    }
+    const docs = [{ location: '', document: basicDoc }]
+
+    const content = (await plugin(schema, docs, config, {
+      outputFile: 'graphql.ts',
+    })) as Types.ComplexPluginOutput
+
+    const usage = basicUsage
+    const output = await validate(content, config, docs, schema, usage)
+    expect(output).toContain(
+      `export type ${typesPrefix}SWRInfiniteKeyLoader${typesSuffix}<Data = unknown, Variables = unknown>`
+    )
+    expect(output).toContain(
+      `getKey: ${typesPrefix}SWRInfiniteKeyLoader${typesSuffix}<${typesPrefix}FeedQuery${typesSuffix}, ${typesPrefix}FeedQueryVariables${typesSuffix}>`
+    )
+    expect(output).toContain(
+      `export type ${typesPrefix}SdkWithHooks${typesSuffix} =`
+    )
   })
 })
