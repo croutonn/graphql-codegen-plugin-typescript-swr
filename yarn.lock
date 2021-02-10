@@ -574,13 +574,13 @@
     open "7.1.0"
     tslib "~2.0.0"
 
-"@graphql-codegen/typescript-graphql-request@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-graphql-request/-/typescript-graphql-request-3.0.1.tgz#dbfb1e6566919359d3c6c5b8ba3a90faf2c92634"
-  integrity sha512-KuHjMM3GEItM555zE7ySZn5cu7A6Tr1kgunob1QMUcSVRaE26ChNtD1Ummm2PXQEM4VXNu64eK5DWJ/xkR0eBg==
+"@graphql-codegen/typescript-graphql-request@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-graphql-request/-/typescript-graphql-request-3.0.2.tgz#0ca8709ef6b96caa3a465f5bf65b365fbdbf9d54"
+  integrity sha512-tYB/L69YBrfv+9SoNjIV8pOqM6TZ91J+Cf7RtvahNSC2Qfa+f7cgTLGHaSGvxEXU5PNAY07oALpAA5U1XQbTEQ==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^1.18.2"
-    "@graphql-codegen/visitor-plugin-common" "^1.18.1"
+    "@graphql-codegen/visitor-plugin-common" "^1.18.3"
     auto-bind "~4.0.0"
     tslib "~2.1.0"
 
@@ -609,6 +609,22 @@
   version "1.18.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-1.18.2.tgz#1a30bd33f011b4fb976e0f8462d160126db875ea"
   integrity sha512-A8yBJGq7A7gxaVVXK4QXwV1ZpzZ64fH7U7JTGeq86o3jA7QNV2rmCRXCY0JttS2fu+olV18NjsWRwAXuAb1g9A==
+  dependencies:
+    "@graphql-codegen/plugin-helpers" "^1.18.2"
+    "@graphql-tools/optimize" "^1.0.1"
+    "@graphql-tools/relay-operation-optimizer" "^6"
+    array.prototype.flatmap "^1.2.4"
+    auto-bind "~4.0.0"
+    dependency-graph "^0.10.0"
+    graphql-tag "^2.11.0"
+    parse-filepath "^1.0.2"
+    pascal-case "^3.1.1"
+    tslib "~2.1.0"
+
+"@graphql-codegen/visitor-plugin-common@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-1.18.3.tgz#9d2c4449c3bdaffe3e782e2321fe0cb998b8a91d"
+  integrity sha512-6xJzt8hszCTKt3rTlcCURpuiAFuaiaZgStlVeRE1OrKEDiY1T3vwF3/7TonhfnEjqBWtZdMmXvNx3ArXkRUV4w==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^1.18.2"
     "@graphql-tools/optimize" "^1.0.1"
