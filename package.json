@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@graphql-codegen/plugin-helpers": "^1.18.3",
-    "@graphql-codegen/visitor-plugin-common": "^1.18.3",
+    "@graphql-codegen/visitor-plugin-common": "^1.19.0",
     "auto-bind": "^4.0.0",
     "graphql-request": "^3.4.0",
     "micromatch": "^4.0.2",
@@ -45,7 +45,7 @@
   "devDependencies": {
     "@graphql-codegen/testing": "^1.17.7",
     "@graphql-codegen/typescript": "^1.21.1",
-    "@graphql-codegen/typescript-graphql-request": "^3.0.2",
+    "@graphql-codegen/typescript-graphql-request": "^3.1.0",
     "@graphql-codegen/typescript-operations": "^1.17.15",
     "@types/jest": "^26.0.20",
     "@types/micromatch": "^4.0.1",
