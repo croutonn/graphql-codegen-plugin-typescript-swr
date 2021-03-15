@@ -557,6 +557,17 @@
     lodash "~4.17.20"
     tslib "~2.1.0"
 
+"@graphql-codegen/plugin-helpers@^1.18.4":
+  version "1.18.4"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/plugin-helpers/-/plugin-helpers-1.18.4.tgz#0adc4c0f88386a50b7a69d358080b6ee54fc3b16"
+  integrity sha512-dpfhUmn9GOS8ByoOPIN3V4Nn9HX7sl9NR7Hf26TgN6Clg7cQvkT6XjHdS2e56Q3kWrxZT1zJ1sEa67D3tj9ZtQ==
+  dependencies:
+    "@graphql-tools/utils" "^7.0.0"
+    common-tags "1.8.0"
+    import-from "3.0.0"
+    lodash "~4.17.20"
+    tslib "~2.1.0"
+
 "@graphql-codegen/testing@^1.17.7":
   version "1.17.7"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/testing/-/testing-1.17.7.tgz#fc7bbaaee3af91fbe554ec547ec3f9ca40076c25"
@@ -610,6 +621,22 @@
     array.prototype.flatmap "^1.2.4"
     auto-bind "~4.0.0"
     change-case-all "^1.0.12"
+    dependency-graph "^0.11.0"
+    graphql-tag "^2.11.0"
+    parse-filepath "^1.0.2"
+    tslib "~2.1.0"
+
+"@graphql-codegen/visitor-plugin-common@^1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-1.19.1.tgz#2584588351a343a2ad8cd76dde62eb2ec25abe18"
+  integrity sha512-MJZXe5vXxV6PLOgHhQoz93gnjzJtbnVQXQKqVEcbyB9W8ImoKuTHsEf/eJ6yCL79f7X/2dnOOM84d5Osh1eaKg==
+  dependencies:
+    "@graphql-codegen/plugin-helpers" "^1.18.4"
+    "@graphql-tools/optimize" "^1.0.1"
+    "@graphql-tools/relay-operation-optimizer" "^6"
+    array.prototype.flatmap "^1.2.4"
+    auto-bind "~4.0.0"
+    change-case-all "1.0.12"
     dependency-graph "^0.11.0"
     graphql-tag "^2.11.0"
     parse-filepath "^1.0.2"
@@ -1626,7 +1653,7 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-change-case-all@^1.0.12:
+change-case-all@1.0.12, change-case-all@^1.0.12:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/change-case-all/-/change-case-all-1.0.12.tgz#ae3e0faf5e610e8e25c5d5eaa4a6d5c2f1d68797"
   integrity sha512-zdQus7R0lkprF99lrWUC5bFj6Nog4Xt4YCEjQ/vM4vbc6b5JHFBQMxRPAjfx+HJH8WxMzH0E+lQ8yQJLgmPCBg==
