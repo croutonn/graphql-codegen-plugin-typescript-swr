@@ -1,5 +1,3 @@
 {
-  "extends": [
-    "@croutonn"
-  ]
+  "extends": ["@typehut:maintenance"]
 }
