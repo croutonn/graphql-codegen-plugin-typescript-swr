@@ -107,7 +107,7 @@ async function test() {
       })) as Types.ComplexPluginOutput
 
       expect(content.prepend).toContain(
-        `import useSWR, { ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface } from 'swr';`
+        `import useSWR, { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
       )
 
       await validate(content, config, docs, schema, usage)
@@ -124,7 +124,7 @@ async function test() {
 
       expect(content.prepend).toContain(`import useSWR from 'swr';`)
       expect(content.prepend).toContain(
-        `import type { ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface } from 'swr';`
+        `import type { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
       )
 
       await validate(content, config, docs, schema, usage)
@@ -234,7 +234,10 @@ async function test() {
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
       expect(content.prepend).toContain(
-        `import useSWR, { useSWRInfinite, ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface, SWRInfiniteConfigInterface } from 'swr';`
+        `import useSWR, { useSWRInfinite, SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
+      )
+      expect(content.prepend).toContain(
+        `import { SWRInfiniteConfiguration } from 'swr/infinite';`
       )
       expect(output).toContain(readOutput('infinite'))
     })
