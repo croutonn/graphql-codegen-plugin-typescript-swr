@@ -71,7 +71,7 @@ const composeQueryHandler = (
       config.autogenKey ? '' : 'id: string, '
     }getKey: ${config.typesPrefix}SWRInfiniteKeyLoader${
       config.typesSuffix
-    }<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfigInterface<${responseType}, ClientError>) {
+    }<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfiguration<${responseType}, ClientError>) {
   return useSWRInfinite<${responseType}, ClientError>(
     utilsForInfinite.generateGetKey<${responseType}, ${variablesType}>(${
       config.autogenKey
@@ -122,24 +122,30 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     if (this.config.useTypeImports) {
       if (this._enabledInfinite) {
         this._additionalImports.push(
-          `import type { ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface, SWRInfiniteConfigInterface } from 'swr';`
+          `import type { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
+        )
+        this._additionalImports.push(
+          `import type { SWRInfiniteConfiguration } from 'swr/infinite';`
         )
         this._additionalImports.push(
           `import useSWR, { useSWRInfinite } from 'swr';`
         )
       } else {
         this._additionalImports.push(
-          `import type { ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface } from 'swr';`
+          `import type { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
         )
         this._additionalImports.push(`import useSWR from 'swr';`)
       }
     } else if (this._enabledInfinite) {
       this._additionalImports.push(
-        `import useSWR, { useSWRInfinite, ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface, SWRInfiniteConfigInterface } from 'swr';`
+        `import useSWR, { useSWRInfinite, SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
+      )
+      this._additionalImports.push(
+        `import { SWRInfiniteConfiguration } from 'swr/infinite';`
       )
     } else {
       this._additionalImports.push(
-        `import useSWR, { ConfigInterface as SWRConfigInterface, keyInterface as SWRKeyInterface } from 'swr';`
+        `import useSWR, { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
       )
     }
   }
