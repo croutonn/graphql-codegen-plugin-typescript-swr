@@ -9,14 +9,8 @@ module.exports = () => {
   return {
     displayName: pkg.name,
     rootDir: __dirname,
-    transform: { '^.+\\.tsx?$': 'ts-jest' },
+    preset: 'ts-jest',
     testEnvironment: 'node',
-    globals: {
-      'ts-jest': {
-        diagnostics: false,
-        tsConfig: 'tsconfig.json',
-      },
-    },
     restoreMocks: true,
     reporters: ['default'],
     modulePathIgnorePatterns: ['dist'],
