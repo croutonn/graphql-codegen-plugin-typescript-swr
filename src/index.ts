@@ -25,6 +25,7 @@ export const plugin: PluginFunction<RawSWRPluginConfig> = (
   const allAst = concatAST(documents.map((v) => v.document))
 
   const allFragments: LoadedFragment[] = [
+    // prettier-ignore
     ...(allAst.definitions.filter(
       (d) => d.kind === Kind.FRAGMENT_DEFINITION
     ) as FragmentDefinitionNode[]).map((fragmentDef) => ({
