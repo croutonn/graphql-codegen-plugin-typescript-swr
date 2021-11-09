@@ -35,6 +35,7 @@
   "dependencies": {
     "@graphql-codegen/plugin-helpers": "^1.18.7",
     "@graphql-codegen/visitor-plugin-common": "^1.21.0",
+    "@types/micromatch": "^4.0.1",
     "auto-bind": "^4.0.0",
     "graphql-request": "^3.4.0",
     "micromatch": "^4.0.4",
@@ -48,7 +49,6 @@
     "@graphql-codegen/typescript-graphql-request": "^3.2.1",
     "@graphql-codegen/typescript-operations": "^1.18.0",
     "@types/jest": "^26.0.23",
-    "@types/micromatch": "^4.0.1",
     "@types/node": "^14.17.1",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "eslint": "^7.18.0",
