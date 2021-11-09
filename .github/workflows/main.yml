@@ -12,17 +12,17 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: ['12', '14', '16']
 
     steps:
       - uses: actions/checkout@v2
       - name: Run tests with ${{ matrix.node-version }}
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - name: yarn install, and test
         run: |
-          yarn install
+          yarn install --pure-lockfile
           yarn test
         env:
           CI: true
