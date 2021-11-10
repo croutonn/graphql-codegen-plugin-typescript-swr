@@ -47,7 +47,7 @@
     "@graphql-codegen/testing": "^1.17.7",
     "@graphql-codegen/typescript": "^2.0.0",
     "@graphql-codegen/typescript-graphql-request": "^4.0.0",
-    "@graphql-codegen/typescript-operations": "^1.18.0",
+    "@graphql-codegen/typescript-operations": "^2.0.0",
     "@types/jest": "^27.0.0",
     "@types/node": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
