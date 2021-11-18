@@ -5,7 +5,6 @@ import {
   LoadedFragment,
   ParsedConfig,
 } from '@graphql-codegen/visitor-plugin-common'
-import autoBind from 'auto-bind'
 import { GraphQLSchema, Kind, OperationDefinitionNode } from 'graphql'
 import glob from 'micromatch'
 import { pascalCase } from 'pascal-case'
@@ -110,8 +109,6 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         typeof this.config.useSWRInfinite === 'string') ||
       (Array.isArray(this.config.useSWRInfinite) &&
         this.config.useSWRInfinite.length > 0)
-
-    autoBind(this)
 
     const typeImport = this.config.useTypeImports ? 'import type' : 'import'
 
