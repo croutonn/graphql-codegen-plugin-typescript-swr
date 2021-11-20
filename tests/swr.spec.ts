@@ -234,10 +234,10 @@ async function test() {
       const usage = basicUsage
       const output = await validate(content, config, docs, schema, usage)
       expect(content.prepend).toContain(
-        `import useSWR, { useSWRInfinite, SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
+        `import useSWR, { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
       )
       expect(content.prepend).toContain(
-        `import { SWRInfiniteConfiguration } from 'swr/infinite';`
+        `import useSWRInfinite, { SWRInfiniteConfiguration } from 'swr/infinite';`
       )
       expect(output).toContain(readOutput('infinite'))
     })
