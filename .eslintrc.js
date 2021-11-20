@@ -7,9 +7,12 @@ module.exports = {
     {
       files: ['**/*.ts', '**/*.tsx'],
       extends: [
-        'airbnb-typescript',
+        'airbnb-base',
+        'airbnb-typescript/base',
         'airbnb/hooks',
         'plugin:@typescript-eslint/recommended',
+        'plugin:import/recommended',
+        'plugin:import/typescript',
         'prettier',
       ],
       parserOptions: {
@@ -17,16 +20,6 @@ module.exports = {
         project: './tsconfig.json',
       },
       rules: {
-        'import/order': [
-          'error',
-          {
-            groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
-            'newlines-between': 'always',
-            alphabetize: {
-              order: 'asc',
-            },
-          },
-        ],
         'no-underscore-dangle': [
           'error',
           {
