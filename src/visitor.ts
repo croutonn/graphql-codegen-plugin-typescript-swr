@@ -124,8 +124,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         this._additionalImports.push(
           `import type { SWRInfiniteConfiguration } from 'swr/infinite';`
         )
+        this._additionalImports.push(`import useSWR from 'swr';`)
         this._additionalImports.push(
-          `import useSWR, { useSWRInfinite } from 'swr';`
+          `import useSWRInfinite from 'swr/infinite';`
         )
       } else {
         this._additionalImports.push(
@@ -135,10 +136,10 @@ export class SWRVisitor extends ClientSideBaseVisitor<
       }
     } else if (this._enabledInfinite) {
       this._additionalImports.push(
-        `import useSWR, { useSWRInfinite, SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
+        `import useSWR, { SWRConfiguration as SWRConfigInterface, Key as SWRKeyInterface } from 'swr';`
       )
       this._additionalImports.push(
-        `import { SWRInfiniteConfiguration } from 'swr/infinite';`
+        `import useSWRInfinite, { SWRInfiniteConfiguration } from 'swr/infinite';`
       )
     } else {
       this._additionalImports.push(
