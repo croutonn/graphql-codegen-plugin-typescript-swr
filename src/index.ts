@@ -4,15 +4,10 @@ import {
   Types,
   PluginValidateFn,
   PluginFunction,
+  oldVisit,
 } from '@graphql-codegen/plugin-helpers'
 import { LoadedFragment } from '@graphql-codegen/visitor-plugin-common'
-import {
-  visit,
-  GraphQLSchema,
-  concatAST,
-  Kind,
-  FragmentDefinitionNode,
-} from 'graphql'
+import { GraphQLSchema, concatAST, Kind, FragmentDefinitionNode } from 'graphql'
 
 import { RawSWRPluginConfig } from './config'
 import { SWRVisitor } from './visitor'
@@ -38,7 +33,7 @@ export const plugin: PluginFunction<RawSWRPluginConfig> = (
   ]
 
   const visitor = new SWRVisitor(schema, allFragments, config)
-  visit(allAst, { leave: visitor })
+  oldVisit(allAst, { leave: visitor })
   return {
     prepend: visitor.getImports(),
     content: visitor.sdkContent,
