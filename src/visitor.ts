@@ -219,8 +219,10 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     if (this._enabledInfinite) {
       codes.push(`  const utilsForInfinite = {
     generateGetKey: <Data = unknown, Variables = unknown>(
-      id: string,
-      getKey: ${config.typesPrefix}SWRInfiniteKeyLoader${config.typesSuffix}<Data, Variables>
+      id: ${config.autogenSWRKey ? 'SWRKeyInterface' : 'string'},
+      getKey: ${config.typesPrefix}SWRInfiniteKeyLoader${
+        config.typesSuffix
+      }<Data, Variables>
     ) => (pageIndex: number, previousData: Data | null) => {
       const key = getKey(pageIndex, previousData)
       return key ? [id, ...key] : null

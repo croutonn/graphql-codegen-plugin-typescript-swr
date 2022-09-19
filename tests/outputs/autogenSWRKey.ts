@@ -2,7 +2,7 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
   const sdk = getSdk(client, withWrapper);
   const utilsForInfinite = {
     generateGetKey: <Data = unknown, Variables = unknown>(
-      id: string,
+      id: SWRKeyInterface,
       getKey: SWRInfiniteKeyLoader<Data, Variables>
     ) => (pageIndex: number, previousData: Data | null) => {
       const key = getKey(pageIndex, previousData)
