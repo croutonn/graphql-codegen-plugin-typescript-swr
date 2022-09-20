@@ -3302,13 +3302,6 @@ jest-diff@^29.0.3:
     jest-get-type "^29.0.0"
     pretty-format "^29.0.3"
 
-jest-docblock@^28.0.0:
-  version "28.0.0"
-  resolved "https://registry.yarnpkg.com/jest-docblock/-/jest-docblock-28.0.0.tgz#7f39dc998da47dac243157fbe7fbc1e993ab0eb8"
-  integrity sha512-88od+z1QkHyvtpj1gRA6QGysopOzImocHNNlvvM7OydDe9ER6z1siLtHJXbKEfi5FoxMpYqDtszYIS50JVs0WA==
-  dependencies:
-    detect-newline "^3.0.0"
-
 jest-docblock@^29.0.0:
   version "29.0.0"
   resolved "https://registry.yarnpkg.com/jest-docblock/-/jest-docblock-29.0.0.tgz#3151bcc45ed7f5a8af4884dcc049aee699b4ceae"
