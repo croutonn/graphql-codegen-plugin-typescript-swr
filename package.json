@@ -39,7 +39,7 @@
     "@graphql-codegen/plugin-helpers": "^2.3.1",
     "@graphql-codegen/visitor-plugin-common": "^2.5.1",
     "@types/micromatch": "^4.0.1",
-    "graphql-request": "^4.0.0",
+    "graphql-request": "^5.0.0",
     "micromatch": "^4.0.4",
     "pascal-case": "^3.1.2",
     "swr": "^1.0.0",
