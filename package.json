@@ -36,7 +36,7 @@
     "graphql": "<17.0.0"
   },
   "dependencies": {
-    "@graphql-codegen/plugin-helpers": "^2.3.1",
+    "@graphql-codegen/plugin-helpers": "^3.0.0",
     "@graphql-codegen/visitor-plugin-common": "^2.5.1",
     "@types/micromatch": "^4.0.1",
     "graphql-request": "^4.0.0",
