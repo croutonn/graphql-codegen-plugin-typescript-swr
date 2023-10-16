@@ -8,7 +8,7 @@
   "repository": "https://github.com/croutonn/graphql-codegen-plugin-typescript-swr",
   "license": "MIT",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "keywords": [
     "graphql",
