@@ -113,7 +113,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     const typeImport = this.config.useTypeImports ? 'import type' : 'import'
 
     this._additionalImports.push(
-      `${typeImport} { ClientError } from 'graphql-request/dist/types';`
+      `${typeImport} { ClientError } from 'graphql-request';`
     )
 
     if (this.config.useTypeImports) {
