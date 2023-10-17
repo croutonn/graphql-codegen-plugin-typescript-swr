@@ -42,7 +42,7 @@
     "graphql-request": "^4.0.0",
     "micromatch": "^4.0.4",
     "pascal-case": "^3.1.2",
-    "swr": "^1.0.0",
+    "swr": "^2.0.0",
     "tslib": "^2.2.0"
   },
   "devDependencies": {
