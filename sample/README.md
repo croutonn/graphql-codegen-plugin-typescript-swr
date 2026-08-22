@@ -1,34 +1,34 @@
-# graphql-codegen-plugin-typescript-swr スモークテストアプリ
+# graphql-codegen-plugin-typescript-swr smoke test app
 
-`swr` / `graphql-request` / `graphql` / `react` などの依存パッケージを更新した際に、生成された SWR フックが実際にブラウザ上で動作するかを目視確認するための React + Tailwind CSS 製アプリです。バックエンドは [MSW](https://mswjs.io/) でブラウザ内にモックしているため、`yarn dev` だけで完結します。
+A React + Tailwind CSS app for manually verifying, in a real browser, that the generated SWR hooks still work whenever you bump a dependency such as `swr` / `graphql-request` / `graphql` / `react`. The backend is mocked entirely in the browser via [MSW](https://mswjs.io/), so `yarn dev` alone is enough — no separate server needed.
 
-## 使い方(依存パッケージ更新時のスモークテスト手順)
+## Usage (smoke-test procedure after a dependency update)
 
-1. ルートで依存を更新する(`package.json` の `swr` / `graphql-request` / `graphql` / `react` 等、あるいは `sample/package.json` 側の対応するバージョン)
-2. ルートで `yarn build`(プラグイン本体をビルド)
-3. ルートで `yarn sample:codegen`(`sample/src/generated/*.ts` を再生成)
-4. `sample` で `yarn install`(依存を変更した場合)
-   - `msw` を更新した場合は追加で `npx msw init public --save` を実行し、Service Worker スクリプトを再生成する。
-5. `sample` で `yarn dev` を起動し、各タブを目視確認する
+1. Update the dependency at the root (`swr` / `graphql-request` / `graphql` / `react` etc. in the root `package.json`, and/or the matching version in `sample/package.json`).
+2. At the root, run `yarn build` (builds the plugin itself).
+3. At the root, run `yarn sample:codegen` (regenerates `sample/src/generated/*.ts`).
+4. In `sample`, run `yarn install` (if a dependency changed).
+   - If you updated `msw`, also run `npx msw init public --save` to regenerate the Service Worker script.
+5. In `sample`, run `yarn dev` and check each tab visually.
 
-## デモ画面
+## Demo tabs
 
-| タブ | 確認内容 |
+| Tab | What it verifies |
 |---|---|
-| 基本クエリ | デフォルト設定の `useComment` フック(key を明示) |
-| autogenSWRKey | `autogenSWRKey: true` の key 省略パターン |
-| useSWRInfinite | `useSWRInfinite: ["Feed"]` によるページネーション(※既知の制約あり、下記参照) |
-| excludeQueries | 除外されたクエリはフックではなく素の Promise 関数になること |
-| mutation | `submitComment` / `vote` と `mutate()` によるキャッシュ再検証 |
-| Authorization | JWT ヘッダーの有無で `currentUser` が変わること |
+| Basic query | The default-config `useComment` hook (explicit key) |
+| autogenSWRKey | The key-omission pattern from `autogenSWRKey: true` |
+| useSWRInfinite | Pagination via `useSWRInfinite: ["Feed"]` (※known limitation, see below) |
+| excludeQueries | An excluded query becomes a plain Promise function instead of a hook |
+| mutation | `submitComment` / `vote` plus cache revalidation via `mutate()` |
+| Authorization | `currentUser` changes depending on whether a JWT header is present |
 
-## スキーマ・モックデータ
+## Schema and mock data
 
-`dev-test/githunt` のスキーマ・ドキュメント(GitHunt サンプルスキーマ)をそのまま使用しています。バックエンドは持たず、`src/mocks/data.ts` のインメモリデータを `src/mocks/handlers.ts` の MSW ハンドラが返します。
+Uses `dev-test/githunt`'s schema and documents (the GitHunt sample schema) as-is. There's no real backend — the in-memory data in `src/mocks/data.ts` is served by the MSW handlers in `src/mocks/handlers.ts`.
 
-## 既知の制約
+## Known limitations
 
-- **`rawRequest: true` は未対応です。** 現状のプラグイン(`src/visitor.ts`)には、`rawRequest: true` を指定しても生成される SWR フック側の型・実装が raw レスポンス形式に対応せず、常に通常のレスポンス型のまま生成される既知の不具合があります(`getSdk()` の素の関数側は正しく raw 対応します)。最新の swr(v2 系)と組み合わせると型エラーになるため、本アプリのデモ対象からは除外しています。
-- **`useSWRInfinite` によるページネーションが swr v2 系では機能しません。** 「useSWRInfinite」タブで「もっと読み込む」をクリックしても `offset` が更新されず、常に1ページ目のデータを再取得します(React コンソールにも重複 key の警告が出ます)。原因は、プラグイン(`src/visitor.ts` の `generateFetcher`)が生成するフェッチャーが `(id, fieldName, fieldValue)` という3引数呼び出しを前提としている点です。これは swr v1 系で配列キーがフェッチャーに spread して渡されていた挙動に依存しており、swr v2.5.1 ではキー配列がそのまま1つの引数として渡される(spread されない)ため、`fieldName` / `fieldValue` が `undefined` になり `offset` がマージされません。
-- `graphql-request` は `^4.3.0` に固定しています。v5 以降は `package.json` の `exports` フィールドでサブパスが制限され、本プラグインが生成する `graphql-request/dist/types` / `graphql-request/dist/types.dom` の import が解決できなくなるためです。
-- Next.js 固有の SSR/SSG(`getStaticProps` 等)の再現は行っていません。
+- **`rawRequest: true` is not supported.** The current plugin (`src/visitor.ts`) has a known bug where, even with `rawRequest: true`, the generated SWR hooks' types and implementation don't reflect the raw response shape and are always generated as if it were the normal response type (the plain functions on `getSdk()` do correctly handle raw responses). Combined with a recent `swr` (v2.x), this produces a type error, so this demo app excludes it from its scope.
+- **`useSWRInfinite` pagination doesn't work under swr v2.x.** Clicking "load more" on the "useSWRInfinite" tab never updates `offset` and always refetches page 1's data (the React console also shows duplicate-key warnings). The cause: the fetcher the plugin generates (`generateFetcher` in `src/visitor.ts`) assumes a 3-argument call, `(id, fieldName, fieldValue)`. This relies on swr v1's behavior of spreading an array key into the fetcher's arguments; under swr v2.5.1 the key array is instead passed as a single argument (not spread), so `fieldName` / `fieldValue` end up `undefined` and `offset` never gets merged in.
+- `graphql-request` is pinned to `^4.3.0`. From v5 onward, the `exports` field in its `package.json` restricts subpath imports, which breaks this plugin's generated `graphql-request/dist/types` / `graphql-request/dist/types.dom` imports.
+- Next.js-specific SSR/SSG (`getStaticProps`, etc.) is not reproduced here.
