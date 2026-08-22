@@ -30,6 +30,7 @@
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:integrate": "jest --no-watchman",
+    "sample:codegen": "cd sample && ../node_modules/.bin/graphql-codegen --config codegen.yml",
     "watch:build": "tsc -p tsconfig.json -w"
   },
   "peerDependencies": {
@@ -46,6 +47,7 @@
     "tslib": "^2.2.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.16.5",
     "@graphql-codegen/testing": "^1.17.7",
     "@graphql-codegen/typescript": "^2.0.0",
     "@graphql-codegen/typescript-graphql-request": "^4.0.0",
