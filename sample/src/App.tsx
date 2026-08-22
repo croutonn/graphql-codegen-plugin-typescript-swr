@@ -1,7 +1,19 @@
 import { useState } from 'react'
 import { BasicQueryDemo } from './demos/BasicQueryDemo'
+import { AutogenKeyDemo } from './demos/AutogenKeyDemo'
+import { InfiniteFeedDemo } from './demos/InfiniteFeedDemo'
+import { ExcludeQueriesDemo } from './demos/ExcludeQueriesDemo'
+import { MutationDemo } from './demos/MutationDemo'
+import { AuthorizationDemo } from './demos/AuthorizationDemo'
 
-const demos = [{ id: 'basic', label: 'Basic Query', component: BasicQueryDemo }] as const
+const demos = [
+  { id: 'basic', label: 'Basic Query', component: BasicQueryDemo },
+  { id: 'autogen-key', label: 'autogenSWRKey', component: AutogenKeyDemo },
+  { id: 'infinite-feed', label: 'useSWRInfinite', component: InfiniteFeedDemo },
+  { id: 'exclude-queries', label: 'excludeQueries', component: ExcludeQueriesDemo },
+  { id: 'mutation', label: 'mutation', component: MutationDemo },
+  { id: 'authorization', label: 'Authorization', component: AuthorizationDemo },
+] as const
 
 function App() {
   const [activeId, setActiveId] = useState<(typeof demos)[number]['id']>(demos[0].id)
