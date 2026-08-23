@@ -1,0 +1,39 @@
+generates:
+  ./src/generated/sdk.default.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js
+  ./src/generated/sdk.autogenKey.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      autogenSWRKey: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js
+  ./src/generated/sdk.infinite.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      useSWRInfinite: ["Feed"]
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js
+  ./src/generated/sdk.excluded.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      excludeQueries: ["CurrentUserForProfile"]
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js

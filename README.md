@@ -13,6 +13,7 @@ A [GraphQL code generator](https://graphql-code-generator.com/) plug-in that aut
   - [Pagination](#pagination)
   - [Authorization](#authorization)
   - [Next.js](#nextjs)
+- [Development](#development)
 
 ## API Reference
 
@@ -236,3 +237,7 @@ export const ArticlePage: NextPage<ArticlePageProps> = ({ slug, initialData, pre
   )
 }
 ```
+
+## Development
+
+[`sample/`](./sample) is a small React + Tailwind CSS app for manually smoke-testing this plugin's generated SWR hooks in a real browser — useful when bumping `react`/`swr`/`graphql-request`/`graphql`. It mocks its GraphQL backend entirely in-browser (via [MSW](https://mswjs.io/)), so no server setup is required. See [`sample/README.md`](./sample/README.md) for usage.
