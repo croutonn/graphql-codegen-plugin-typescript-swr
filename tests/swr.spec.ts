@@ -8,7 +8,6 @@ import {
   TypeScriptPluginConfig,
 } from '@graphql-codegen/typescript'
 import { plugin as graphQLRequestPlugin } from '@graphql-codegen/typescript-graphql-request'
-import { GraphQLRequestPluginConfig } from '@graphql-codegen/typescript-graphql-request/visitor'
 import {
   plugin as tsDocumentsPlugin,
   TypeScriptDocumentsPluginConfig,
@@ -17,6 +16,11 @@ import { parse, GraphQLSchema, buildClientSchema } from 'graphql'
 
 import { RawSWRPluginConfig } from '../src/config'
 import { plugin } from '../src/index'
+
+type GraphQLRequestPluginConfig = {
+  rawRequest: boolean
+  extensionsType: string
+}
 
 type PluginsConfig = Partial<
   TypeScriptPluginConfig &
