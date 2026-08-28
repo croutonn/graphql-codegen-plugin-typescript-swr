@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "graphql": "^16.14.2",
-    "graphql-request": "^4.3.0",
+    "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
