@@ -275,9 +275,7 @@ async function test() {
 
     const usage = basicUsage
     const output = await validate(content, config, docs, schema, usage)
-    expect(output).toContain(
-      "import { ClientError } from 'graphql-request/dist/types'"
-    )
+    expect(output).toContain("import { ClientError } from 'graphql-request'")
     expect(output).toContain(readOutput('rawRequest'))
   })
 
