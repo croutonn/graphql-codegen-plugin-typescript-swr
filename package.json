@@ -48,7 +48,7 @@
     "tslib": "^2.2.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.16.5",
+    "@graphql-codegen/cli": "^7.0.0",
     "@graphql-codegen/testing": "^1.17.7",
     "@graphql-codegen/typescript": "^2.0.0",
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
