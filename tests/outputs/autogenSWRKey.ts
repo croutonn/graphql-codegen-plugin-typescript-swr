@@ -9,9 +9,7 @@ export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionW
       return key ? [id, ...key] : null
     },
     generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (
-        id: string,
-        fieldName: keyof Variables,
-        fieldValue: Variables[typeof fieldName]
+        [id, fieldName, fieldValue]: [SWRKeyInterface, keyof Variables, Variables[keyof Variables] | null]
       ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
   }
   const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];

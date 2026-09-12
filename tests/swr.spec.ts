@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { resolve } from 'path'
+import vm from 'vm'
 
 import { Types, mergeOutputs } from '@graphql-codegen/plugin-helpers'
 import { validateTs } from '@graphql-codegen/testing'
@@ -96,6 +97,32 @@ const typeCheckAgainstInstalledDependencies = (rawSource: string): string[] => {
     }
     return message
   })
+}
+
+// Compiles and runs the generated `utilsForInfinite` object so its behavior
+// can be exercised the same way `useSWRInfinite` calls it at runtime (which
+// type-checking alone cannot verify).
+const evaluateUtilsForInfinite = (
+  output: string
+): {
+  generateFetcher: (
+    query: (variables: unknown) => Promise<unknown>,
+    variables?: unknown
+  ) => (key: unknown) => Promise<unknown>
+} => {
+  const match = output.match(/const utilsForInfinite = (\{[\s\S]*?\n {2}\})/)
+  if (!match) {
+    throw new Error('utilsForInfinite not found in generated output')
+  }
+  const { outputText } = ts.transpileModule(`module.exports = ${match[1]};`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  })
+  const sandboxModule = { exports: {} }
+  vm.runInNewContext(outputText, {
+    module: sandboxModule,
+    exports: sandboxModule.exports,
+  })
+  return sandboxModule.exports as ReturnType<typeof evaluateUtilsForInfinite>
 }
 
 describe('SWR', () => {
@@ -326,6 +353,32 @@ async function test() {
         `import useSWRInfinite, { SWRInfiniteConfiguration } from 'swr/infinite';`
       )
       expect(output).toContain(readOutput('infinite'))
+    })
+
+    it('generateFetcher should merge variables when called the way `useSWRInfinite` calls its fetcher (a single array argument, not spread positional args)', async () => {
+      const config: PluginsConfig = {
+        useSWRInfinite: ['feed[24]'],
+      }
+      const docs = [{ location: '', document: basicDoc }]
+
+      const content = (await plugin(schema, docs, config, {
+        outputFile: 'graphql.ts',
+      })) as Types.ComplexPluginOutput
+
+      const output = await validate(content, config, docs, schema, basicUsage)
+      const { generateFetcher } = evaluateUtilsForInfinite(output)
+
+      const calls: unknown[] = []
+      const query = (variables: unknown) => {
+        calls.push(variables)
+        return Promise.resolve({})
+      }
+
+      const fetcher = generateFetcher(query, { type: 'NEW' })
+      // useSWRInfinite invokes the fetcher with the key array as ONE argument.
+      await fetcher(['feed-1', 'offset', 8])
+
+      expect(calls).toEqual([{ type: 'NEW', offset: 8 }])
     })
   })
 

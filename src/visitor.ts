@@ -229,9 +229,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
       return key ? [id, ...key] : null
     },
     generateFetcher: <Query = unknown, Variables = unknown>(query: (variables: Variables) => Promise<Query>, variables?: Variables) => (
-        id: string,
-        fieldName: keyof Variables,
-        fieldValue: Variables[typeof fieldName]
+        [id, fieldName, fieldValue]: [${
+          config.autogenSWRKey ? 'SWRKeyInterface' : 'string'
+        }, keyof Variables, Variables[keyof Variables] | null]
       ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
   }`)
     }
