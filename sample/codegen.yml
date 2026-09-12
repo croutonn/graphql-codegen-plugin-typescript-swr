@@ -27,6 +27,17 @@ generates:
       - typescript-operations
       - typescript-graphql-request
       - ../build/main/index.js
+  ./src/generated/sdk.infiniteAutogenKey.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      autogenSWRKey: true
+      useSWRInfinite: ["Feed"]
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js
   ./src/generated/sdk.excluded.ts:
     schema: ../dev-test/githunt/schema.json
     documents: ../dev-test/githunt/*.graphql
