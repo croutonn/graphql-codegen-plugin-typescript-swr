@@ -37,3 +37,13 @@ generates:
       - typescript-operations
       - typescript-graphql-request
       - ../build/main/index.js
+  ./src/generated/sdk.rawRequest.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      rawRequest: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js

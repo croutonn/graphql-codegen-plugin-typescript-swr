@@ -21,6 +21,7 @@ A React + Tailwind CSS app for manually verifying, in a real browser, that the g
 | excludeQueries | An excluded query becomes a plain Promise function instead of a hook |
 | mutation | `submitComment` / `vote` plus cache revalidation via `mutate()` |
 | Authorization | `currentUser` changes depending on whether a JWT header is present |
+| rawRequest | With `rawRequest: true`, `useComment` resolves to `SWRRawResponse<CommentQuery>` (`data`/`status`/`headers`/`errors`) instead of the plain query type |
 
 ## Schema and mock data
 

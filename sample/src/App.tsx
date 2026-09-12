@@ -5,6 +5,7 @@ import { InfiniteFeedDemo } from './demos/InfiniteFeedDemo'
 import { ExcludeQueriesDemo } from './demos/ExcludeQueriesDemo'
 import { MutationDemo } from './demos/MutationDemo'
 import { AuthorizationDemo } from './demos/AuthorizationDemo'
+import { RawRequestDemo } from './demos/RawRequestDemo'
 
 const demos = [
   { id: 'basic', label: 'Basic Query', component: BasicQueryDemo },
@@ -13,6 +14,7 @@ const demos = [
   { id: 'exclude-queries', label: 'excludeQueries', component: ExcludeQueriesDemo },
   { id: 'mutation', label: 'mutation', component: MutationDemo },
   { id: 'authorization', label: 'Authorization', component: AuthorizationDemo },
+  { id: 'raw-request', label: 'rawRequest', component: RawRequestDemo },
 ] as const
 
 function App() {
