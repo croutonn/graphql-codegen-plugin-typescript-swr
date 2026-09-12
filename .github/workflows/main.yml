@@ -16,7 +16,7 @@ jobs:
         node-version: ['22', '24', '26']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Run tests with ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
