@@ -13,6 +13,7 @@ import {
   TypeScriptDocumentsPluginConfig,
 } from '@graphql-codegen/typescript-operations'
 import { parse, GraphQLSchema, buildClientSchema } from 'graphql'
+import ts from 'typescript'
 
 import { RawSWRPluginConfig } from '../src/config'
 import { plugin } from '../src/index'
@@ -31,6 +32,71 @@ type PluginsConfig = Partial<
 
 const readOutput = (name: string): string =>
   fs.readFileSync(resolve(__dirname, `./outputs/${name}.ts`), 'utf-8')
+
+/**
+ * The test-only `mergeOutputs` helper concatenates each plugin's `prepend`
+ * array without deduping, unlike real codegen output, so e.g. `import gql
+ * from 'graphql-tag'` appears once per plugin that needs it. Real semantic
+ * compilation (unlike the syntax-only `validateTs`) rejects that as a
+ * duplicate identifier, so collapse repeated import lines first.
+ */
+const dedupeImportLines = (source: string): string => {
+  const seenImports = new Set<string>()
+  return source
+    .split('\n')
+    .filter((line) => {
+      const trimmed = line.trim()
+      if (!trimmed.startsWith('import ')) return true
+      if (seenImports.has(trimmed)) return false
+      seenImports.add(trimmed)
+      return true
+    })
+    .join('\n')
+}
+
+/**
+ * `validateTs` from `@graphql-codegen/testing` only parses syntax by
+ * default; it never resolves imports or checks assignability, so it can't
+ * catch a fetcher-return-type mismatch against `swr`'s own typings. This
+ * compiles the given source for real, resolving `swr` / `graphql-request`
+ * from this package's actual installed node_modules, to confirm generated
+ * hooks stay assignable to `useSWR`'s real (version-pinned) signature.
+ */
+const typeCheckAgainstInstalledDependencies = (rawSource: string): string[] => {
+  const source = dedupeImportLines(rawSource)
+  const fileName = resolve(__dirname, '__typecheck__.ts')
+  const options: ts.CompilerOptions = {
+    target: ts.ScriptTarget.ES2020,
+    module: ts.ModuleKind.CommonJS,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    esModuleInterop: true,
+    skipLibCheck: true,
+    types: [],
+    lib: ['lib.es2020.d.ts', 'lib.dom.d.ts'],
+    noEmit: true,
+  }
+  const host = ts.createCompilerHost(options)
+  const getSourceFile = host.getSourceFile.bind(host)
+  host.getSourceFile = (name, languageVersion, ...rest) =>
+    resolve(name) === fileName
+      ? ts.createSourceFile(name, source, languageVersion, true)
+      : getSourceFile(name, languageVersion, ...rest)
+  host.writeFile = () => {}
+  const program = ts.createProgram([fileName], options, host)
+  return ts.getPreEmitDiagnostics(program).map((diagnostic) => {
+    const message = ts.flattenDiagnosticMessageText(
+      diagnostic.messageText,
+      '\n'
+    )
+    if (diagnostic.file && diagnostic.start !== undefined) {
+      const { line } = diagnostic.file.getLineAndCharacterOfPosition(
+        diagnostic.start
+      )
+      return `${line + 1}: ${message}`
+    }
+    return message
+  })
+}
 
 describe('SWR', () => {
   const schema = buildClientSchema(require('../dev-test/githunt/schema.json'))
@@ -76,6 +142,22 @@ async function test() {
   if (result.feed) {
     if (result.feed[0]) {
       const id = result.feed[0].id
+    }
+  }
+}`
+
+  const rawUsage = `
+async function test() {
+  const client = new GraphQLClient('');
+  const sdk = getSdkWithHooks(client);
+
+  await sdk.feed();
+  await sdk.feed3();
+  await sdk.feed4();
+  const result = await sdk.feed2({ v: "1" });
+  if (result.data?.feed) {
+    if (result.data.feed[0]) {
+      const id = result.data.feed[0].id
     }
   }
 }`
@@ -273,10 +355,15 @@ async function test() {
       outputFile: 'graphql.ts',
     })) as Types.ComplexPluginOutput
 
-    const usage = basicUsage
+    const usage = rawUsage
     const output = await validate(content, config, docs, schema, usage)
     expect(output).toContain("import { ClientError } from 'graphql-request'")
     expect(output).toContain(readOutput('rawRequest'))
+
+    // `validateTs` above only checks syntax; it can't catch a hook's fetcher
+    // being unassignable to swr's actual `useSWR` signature (the #235 bug).
+    // Compile against the real installed `swr` / `graphql-request` typings.
+    expect(typeCheckAgainstInstalledDependencies(output)).toEqual([])
   })
 
   it('Should work `typesPrefix` and `typesSuffix` option correctly', async () => {

@@ -99,6 +99,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     rawConfig: RawSWRPluginConfig
   ) {
     super(schema, fragments, rawConfig, {
+      rawRequest: rawConfig.rawRequest || false,
       excludeQueries: rawConfig.excludeQueries || null,
       useSWRInfinite: rawConfig.useSWRInfinite || null,
       autogenSWRKey: rawConfig.autogenSWRKey || false,
