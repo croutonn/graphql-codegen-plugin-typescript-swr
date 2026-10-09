@@ -55,12 +55,18 @@ const composeQueryHandler = (
     : operation.operationResultType
   const variablesType = operation.operationVariablesTypes
 
+  const generatedKey = `genKey<${variablesType}>('${pascalName}', variables)`
+  const overrideKeyParam =
+    'overrideKey?: (key: SWRKeyInterface) => SWRKeyInterface'
+
   codes.push(`use${pascalName}(${
     config.autogenKey ? '' : 'key: SWRKeyInterface, '
-  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}, ClientError>) {
+  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}, ClientError>${
+    config.autogenKey ? `, ${overrideKeyParam}` : ''
+  }) {
   return useSWR<${responseType}, ClientError>(${
     config.autogenKey
-      ? `genKey<${variablesType}>('${pascalName}', variables)`
+      ? `overrideKey ? overrideKey(${generatedKey}) : ${generatedKey}`
       : 'key'
   }, () => sdk.${name}(variables), config);
 }`)
@@ -70,11 +76,13 @@ const composeQueryHandler = (
       config.autogenKey ? '' : 'id: string, '
     }getKey: ${config.typesPrefix}SWRInfiniteKeyLoader${
       config.typesSuffix
-    }<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfiguration<${responseType}, ClientError>) {
+    }<${responseType}, ${variablesType}>, variables${optionalVariables}: ${variablesType}, config?: SWRInfiniteConfiguration<${responseType}, ClientError>${
+      config.autogenKey ? `, ${overrideKeyParam}` : ''
+    }) {
   return useSWRInfinite<${responseType}, ClientError>(
     utilsForInfinite.generateGetKey<${responseType}, ${variablesType}>(${
       config.autogenKey
-        ? `genKey<${variablesType}>('${pascalName}', variables)`
+        ? `overrideKey ? overrideKey(${generatedKey}) : ${generatedKey}`
         : 'id'
     }, getKey),
     utilsForInfinite.generateFetcher<${responseType}, ${variablesType}>(sdk.${name}, variables),

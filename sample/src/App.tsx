@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BasicQueryDemo } from './demos/BasicQueryDemo'
 import { AutogenKeyDemo } from './demos/AutogenKeyDemo'
+import { CustomKeyDemo } from './demos/CustomKeyDemo'
 import { InfiniteFeedDemo } from './demos/InfiniteFeedDemo'
 import { InfiniteAutogenKeyDemo } from './demos/InfiniteAutogenKeyDemo'
 import { ExcludeQueriesDemo } from './demos/ExcludeQueriesDemo'
@@ -11,6 +12,7 @@ import { RawRequestDemo } from './demos/RawRequestDemo'
 const demos = [
   { id: 'basic', label: 'Basic Query', component: BasicQueryDemo },
   { id: 'autogen-key', label: 'autogenSWRKey', component: AutogenKeyDemo },
+  { id: 'custom-key', label: 'overrideKey', component: CustomKeyDemo },
   { id: 'infinite-feed', label: 'useSWRInfinite', component: InfiniteFeedDemo },
   { id: 'infinite-autogen-key', label: 'autogenSWRKey + useSWRInfinite', component: InfiniteAutogenKeyDemo },
   { id: 'exclude-queries', label: 'excludeQueries', component: ExcludeQueriesDemo },
