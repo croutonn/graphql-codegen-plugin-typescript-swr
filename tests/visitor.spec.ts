@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { GraphQLSchema } from 'graphql';
 import { SWRVisitor } from '../src/visitor'
 
