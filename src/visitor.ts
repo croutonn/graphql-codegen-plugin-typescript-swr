@@ -16,6 +16,7 @@ export interface SWRPluginConfig extends ClientSideBasePluginConfig {
   excludeQueries: string | string[]
   useSWRInfinite: string | string[]
   autogenSWRKey: boolean
+  swrKeyPrefix: string | null
 }
 
 export interface Operation {
@@ -111,6 +112,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
       excludeQueries: rawConfig.excludeQueries || null,
       useSWRInfinite: rawConfig.useSWRInfinite || null,
       autogenSWRKey: rawConfig.autogenSWRKey || false,
+      swrKeyPrefix: rawConfig.swrKeyPrefix || null,
     })
 
     this._enabledInfinite =
@@ -247,7 +249,9 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     // Add the function for auto-generation key for SWR
     if (config.autogenSWRKey) {
       codes.push(
-        `  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];`
+        `  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [${
+          config.swrKeyPrefix ? `${JSON.stringify(config.swrKeyPrefix)}, ` : ''
+        }name, ...Object.keys(object).sort().map(key => object[key])];`
       )
     }
 
