@@ -15,6 +15,7 @@ import {
 } from '@graphql-codegen/typescript-operations'
 import { parse, GraphQLSchema, buildClientSchema } from 'graphql'
 import ts from 'typescript'
+import { describe, expect, it } from 'vitest'
 
 import { RawSWRPluginConfig } from '../src/config'
 import { plugin } from '../src/index'

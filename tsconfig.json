@@ -19,7 +19,7 @@
     "listFiles": false,
     "pretty": true,
     "lib": ["es2017"],
-    "types": ["node", "jest"]
+    "types": ["node"]
   },
   "include": [
     "src/**/*.ts",
