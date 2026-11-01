@@ -58,3 +58,25 @@ generates:
       - typescript-operations
       - typescript-graphql-request
       - ../build/main/index.js
+  ./src/generated/sdk.keyPrefixA.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      autogenSWRKey: true
+      swrKeyPrefix: apiA
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js
+  ./src/generated/sdk.keyPrefixB.ts:
+    schema: ../dev-test/githunt/schema.json
+    documents: ../dev-test/githunt/*.graphql
+    config:
+      autogenSWRKey: true
+      swrKeyPrefix: apiB
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+      - ../build/main/index.js
