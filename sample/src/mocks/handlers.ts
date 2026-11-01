@@ -39,7 +39,35 @@ function toFeedEntry(entry: NonNullable<ReturnType<typeof findEntry>>) {
   }
 }
 
+// A second, independent GraphQL API that happens to define a `Comment` query
+// too (the #124 scenario). It must come before the catch-all handlers below.
+const apiB = graphql.link('/api-b/graphql')
+
 export const handlers = [
+  apiB.query('Comment', ({ variables }: { variables: CommentQueryVariables }) => {
+    const entry = findEntry(variables.repoFullName)
+    if (!entry) return errorResponse(`Unknown repository: ${variables.repoFullName}`)
+    return HttpResponse.json({
+      data: {
+        currentUser: getCurrentUser(),
+        entry: {
+          id: entry.id,
+          createdAt: entry.createdAt,
+          commentCount: 0,
+          postedBy: { login: entry.postedBy.login, html_url: entry.postedBy.html_url },
+          repository: {
+            full_name: entry.repository.full_name,
+            html_url: entry.repository.html_url,
+            description: 'Served by API B',
+            stargazers_count: entry.repository.stargazers_count,
+            open_issues_count: entry.repository.open_issues_count,
+          },
+          comments: [],
+        },
+      },
+    })
+  }),
+
   graphql.query('Feed', ({ variables }: { variables: FeedQueryVariables }) => {
     if (shouldForceError('Feed')) return errorResponse('Failed to load feed (simulated)')
     const offset = variables.offset ?? 0
