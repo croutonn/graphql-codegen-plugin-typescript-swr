@@ -31,6 +31,10 @@ module.exports = {
         'no-restricted-imports': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
+        // removed in typescript-eslint v8 but still enabled by airbnb-typescript
+        '@typescript-eslint/lines-between-class-members': 'off',
+        '@typescript-eslint/no-throw-literal': 'off',
+        '@typescript-eslint/only-throw-error': 'error',
       },
       settings: {
         'import/parsers': {
