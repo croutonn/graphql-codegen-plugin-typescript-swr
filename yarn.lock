@@ -771,17 +771,6 @@
     lodash "~4.17.0"
     tslib "~2.4.0"
 
-"@graphql-codegen/plugin-helpers@^7.4.2":
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/@graphql-codegen/plugin-helpers/-/plugin-helpers-7.4.2.tgz#2f38032e608c8414f510fa03b16dd5b4c283b34b"
-  integrity sha512-5SmkQvoNg3orbCNWBIv6lD1Zk1/mJbgdqv5oUy2Pw8Q70sO1Y3CGOkdwnPUp5l/pm0GKApQUyqPJkqFaJKewpQ==
-  dependencies:
-    "@graphql-tools/utils" "^12.0.3"
-    change-case-all "^2.1.0"
-    common-tags "1.8.2"
-    import-from "4.0.0"
-    tslib "^2.8.0"
-
 "@graphql-codegen/plugin-helpers@^8.0.0":
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/plugin-helpers/-/plugin-helpers-8.0.0.tgz#b5c0fce95fcf2b976bd5b4f5e2d4a344074f3350"
@@ -811,12 +800,12 @@
     "@graphql-codegen/plugin-helpers" "^8.0.0"
     tslib "^2.8.0"
 
-"@graphql-codegen/testing@^5.0.0":
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/@graphql-codegen/testing/-/testing-5.0.6.tgz#82dade1ecf63b1f609cef72ac42e237836179520"
-  integrity sha512-khIv2CxvKfUgWvnPyUtBnlEEsONlNuE0LDni1OVkBEe+7zmB28LjL3S+94LQNvtSjKLeJDS0WNpWWXks4EhmFw==
+"@graphql-codegen/testing@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/testing/-/testing-6.0.0.tgz#0ec900b5db931688c52f38193c4ae37147c454d0"
+  integrity sha512-Fay6wkQzzfSADIdTNKxifsvRZr4pCzzSxnR7p/tEPU6IuOcLS07ze8rsLhnNmTrjpKZQ+rJ3qeUIdZtqqDn6tg==
   dependencies:
-    "@graphql-codegen/plugin-helpers" "^7.4.2"
+    "@graphql-codegen/plugin-helpers" "^8.0.0"
     common-tags "^1.8.0"
     graphql-yoga "^5.21.0"
     lz-string "^1.4.4"
